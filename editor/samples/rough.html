@@ -1,0 +1,39 @@
+<html id="docHTML">
+	<head><title>Test</title>
+
+<script src="../scripts/util.js" type="text/javascript"></script>	
+<script src="../scripts/uri.js" type="text/javascript"></script>
+<script src="../scripts/term.js" type="text/javascript"></script>
+<script src="../scripts/match.js" type="text/javascript"></script>
+<script src="../scripts/rdfparser.js" type="text/javascript"></script>
+<script src="../scripts/identity.js" type="text/javascript"></script>
+
+<script src="../scripts/log.js" type="text/javascript"></script>
+<script src="../scripts/timeline-api.js" type="text/javascript"></script>
+<script src="../scripts/timeline.js" type="text/javascript"></script>
+<script src="../scripts/xmlhttp.js" type="text/javascript"></script>	
+
+<script src="../scripts/parse-test.js" type="text/javascript"></script>
+<script src="../scripts/widget-factory.js" type="text/javascript"></script>
+
+<script>
+
+function doStuff() {
+	// 1 is a TitledContent
+	WidgetFactory.create(new RDFSymbol('http://example.org/disco/1'), document.getElementById('place'));
+	// 2 is a XHTMLInfoDB
+	// WidgetFactory.create(new RDFSymbol('http://example.org/disco/2'), document.getElementById('place'));
+	// 6 is a OrderedContent
+	// WidgetFactory.create(new RDFSymbol('http://example.org/disco/6'), document.getElementById('place'));
+}
+
+</script>
+
+</head>
+<body onload="doStuff()">
+
+<p id="place" />
+
+</body>
+</html>
+
