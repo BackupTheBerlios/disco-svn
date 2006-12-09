@@ -46,6 +46,10 @@ OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
     var containsStatements = WidgetFactory.store.statementsMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#contains"), undefined);
     console.debug("containsStatements.length",containsStatements.length);
     
+    var dbDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "ol");
+    dbDiv.className = this.getDbDivClassName();
+    
+    
     var children = new Array();//containsStatements.length);
     
     for(var i=0;i<containsStatements.length;i++) {
@@ -62,16 +66,23 @@ OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
     for(var j=0;j<children.length;j++) {  
     	// recurse  
     	console.debug("recursing on "+children[j]); 	
+    	var li = document.createElementNS("http://www.w3.org/1999/xhtml", "li");
     	var div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
     	this.positionHandling(j, div);
     	WidgetFactory.create(children[j], div);
-    	xhtmlContainer.appendChild(div);
+    	li.appendChild(div);
+    	dbDiv.appendChild(li);
     }
+    xhtmlContainer.appendChild(dbDiv);
     	
 }
 
+OrderedContentWidget.prototype.getDbDivClassName = function() {
+	return "orderedContent";
+}
+
 OrderedContentWidget.prototype.positionHandling = function(pos, div) {
-	div.appendChild(document.createTextNode("regular: "));
+	//div.appendChild(document.createTextNode("regular: "));
 }
 
 function TitledContentWidget(rdfSymbol, xhtmlContainer) {
@@ -79,17 +90,26 @@ function TitledContentWidget(rdfSymbol, xhtmlContainer) {
 }
 TitledContentWidget.prototype.load = OrderedContentWidget.prototype.load;
 
+TitledContentWidget.prototype.getDbDivClassName = function() {
+	return "titledContent";
+}
+
 TitledContentWidget.prototype.positionHandling = function(pos, div) {
 	if (pos == 0) {
-		div.appendChild(document.createTextNode("title: "));
+		WidgetFactory.addClass(div, "title");
 	}
 	
 	if (pos == 1) {
-		div.appendChild(document.createTextNode("content: "));
+		WidgetFactory.addClass(div, "content");
 	}
 }
 
 // helpers ////////////
+WidgetFactory.addClass = function(elem, className) {
+	//elem.className += "foo bar ";
+	elem.className += " "+className;
+	
+}
 WidgetFactory.hasType = function(rdfSymbol, type) {
 // alert("anyStatementMatching "+WidgetFactory.store.anyStatementMatching(rdfSymbol, undefined, type));
 	return (typeof(WidgetFactory.store.anyStatementMatching(rdfSymbol, undefined, type)) != 'undefined')
