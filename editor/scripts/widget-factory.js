@@ -44,7 +44,9 @@ OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
 	//var orderedContentStatement = WidgetFactory.store.statementsMatching(rdfSymbol, rdfType, new RDFSymbol("http://discobits.org/ontology#OrderedContent"));
     
     var containsStatements = WidgetFactory.store.statementsMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#contains"), undefined);
-    console.debug("containsStatements.length",containsStatements.length);
+    if (typeof(console) !=  'undefined') {
+    	console.debug("containsStatements.length",containsStatements.length);
+    }
     
     var dbDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "ol");
     dbDiv.className = this.getDbDivClassName();
@@ -57,15 +59,21 @@ OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
         var pos = WidgetFactory.store.statementsMatching(entry, new RDFSymbol("http://discobits.org/ontology#pos"), undefined);
         // alert("pos = "+pos);
    //     console.debug('pos',pos);
-        console.debug('pos[0].object',pos[0].object);
+   		if (typeof(console) !=  'undefined') {
+        	console.debug('pos[0].object',pos[0].object);
+        }
         var holdsStatements = WidgetFactory.store.statementsMatching(entry, new RDFSymbol("http://discobits.org/ontology#holds"), undefined);
 //        alert("holdsStatements = "+holdsStatements+" length="+holdsStatements.length);
-		console.debug('holdsStatements',holdsStatements);
+		if (typeof(console) !=  'undefined') {
+			console.debug('holdsStatements',holdsStatements);
+		}
         children[pos[0].object] = holdsStatements[0].object; // 
     }
     for(var j=0;j<children.length;j++) {  
     	// recurse  
-    	console.debug("recursing on "+children[j]); 	
+    	if (typeof(console) !=  'undefined') {
+    		console.debug("recursing on "+children[j]); 	
+    	}
     	var li = document.createElementNS("http://www.w3.org/1999/xhtml", "li");
     	var div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
     	this.positionHandling(j, div);
@@ -117,9 +125,13 @@ WidgetFactory.hasType = function(rdfSymbol, type) {
 
 WidgetFactory.appendChildrenInDiv = function(objectElement, xhtmlContainer) {
 		var div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
-		console.debug(objectElement);
+		if (typeof(console) !=  'undefined') {
+			console.debug(objectElement);
+		}
 		for( var i=0; i< objectElement.childNodes.length; i++ ){
-			console.debug("adding node "+i+" "+objectElement.childNodes[i]);
+			if (typeof(console) !=  'undefined') {
+				console.debug("adding node "+i+" "+objectElement.childNodes[i]);
+			}
 			div.appendChild(objectElement.childNodes[i].cloneNode(true));		
 		}
 		xhtmlContainer.appendChild(div);	

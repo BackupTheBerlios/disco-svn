@@ -37,7 +37,9 @@ parser.parse(nodeTree,url);
 
 // use FireBug extension to inspect console.debug'd objects
 // Using TestStore you can access store.triples
-console.debug('store',store);
+if (typeof(console) !=  'undefined') {
+	console.debug('store',store);
+}
 
 return store;
 }
