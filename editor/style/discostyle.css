@@ -1,0 +1,35 @@
+ol {
+	padding-left: 0;
+}
+
+.titledContent {
+	list-style-type: none;
+}
+
+.titledContent .content {
+	padding-left: 1em;
+}
+
+.titledContent .title {
+	font-size: 200%;
+	color: red;
+}
+	
+.titledContent .titledContent  .title {
+	font-size: 150%;
+}
+
+
+.titledContent .titledContent .titledContent .title {
+	font-size: 130%;
+	color: black;
+}
+
+.titledContent .titledContent .titledContent .titledContent .title {
+	font-size: 100%;
+}
+
+.orderedContent {
+	padding-left: 2em;
+}
+
