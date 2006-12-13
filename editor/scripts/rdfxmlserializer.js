@@ -29,7 +29,7 @@ RDFXMLSerializer.addStatement = function(statement, result, root) {
 		propertyElem.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:resource", statement.object.uri);
 	} else {
 		if (statement.object.termType == "literal") {
-			//TODO add type, copy elements for xmlliterals, add language for plain literals
+			//note supports hacked xml-literals, other types are not in the store
 			if (statement.object.elementValue) {
 				var nodes = statement.object.elementValue.childNodes;
 				for (var i = 0; i < nodes.length; i ++) {
