@@ -24,7 +24,6 @@ RDFXMLSerializer.addStatement = function(statement, result, root) {
 	var splittedURI = RDFXMLSerializer.splitURI(statement.predicate.uri);
 	var propertyElem = result.createElementNS(splittedURI.ns, splittedURI.name);
 	elem.appendChild(propertyElem);
-	//console.debug("obj-type: "+statement.object.termType);
 	if (statement.object.termType == "symbol") {
 		propertyElem.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:resource", statement.object.uri);
 	} else {
@@ -40,7 +39,6 @@ RDFXMLSerializer.addStatement = function(statement, result, root) {
 				var textNode = result.createTextNode(statement.object.value);
 				propertyElem.appendChild(textNode);
 				if (statement.object.lang) {
-					console.debug("lang "+statement.object.lang);
 					propertyElem.setAttribute("xml:lang", statement.object.lang);
 				}
 			}
