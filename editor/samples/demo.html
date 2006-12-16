@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<title>Mozile Basic Demonstration</title>
+		
+		<script type="text/javascript" src="../scripts/mozile/mozile.js"></script>
+		<script type="text/javascript">
+mozile.root = "../scripts/mozile/";
+
+// LOAD MODULES
+// Load desired modules. They'll take care of their own requirements.
+//mozile.require("mozile.dom");
+//mozile.require("mozile.xml");
+//mozile.require("mozile.xpath");
+//mozile.require("mozile.util");
+//mozile.require("mozile.edit");
+//mozile.require("mozile.event");
+//mozile.require("mozile.save");
+//mozile.require("mozile.gui");
+//mozile.require("mozile.gui.htmlToolbar");
+
+// MODULE CONFIG
+// Configure the loaded modules.
+//mozile.useDesignMode = false;
+//mozile.defaultNS = "http://www.w3.org/1999/xhtml";
+//mozile.help = [mozile.root, "doc", "html", "index.html"].join(mozile.filesep);
+mozile.debug.alertLevel = "inform";
+mozile.debug.logLevel = "debug";
+mozile.alternateSpace = "\u00A0";
+
+// SAVE CONFIG
+// Configure the save system.
+//mozile.save.target = document;
+//mozile.save.format = null;
+//mozile.save.warn = true;
+//mozile.save.method = mozile.save.post;
+//mozile.save.post.async = true;
+//mozile.save.post.uri = "http://somesite.com/save_data.php?id=Mozile";
+//mozile.save.post.user = null;
+//mozile.save.post.password = null;
+//mozile.save.post.showResponse = false;
+
+// COMMANDS
+// Run commands to finish configuring Mozile.
+//mozile.editDocument();
+//mozile.enableEditing(false);
+
+// Wait until the document is loaded before executing these commands.
+window.onload = function() {
+	//mozile.editElement("editor");
+	//mozile.editElement(document.getElementById('test'))
+	//mozile.editElements("editor");
+	mozile.useSchema("lib/xhtml.rng");
+	//mozile.save.target = document.getElementById("editor");
+}
+		</script>
+		<style type="text/css">
+		.editor {
+			border: 1px dashed red; 
+			padding: 5px;
+		}
+		</style>
+	</head>
+	<body>
+<div id="test" class="editor">bla bla</div>
+<div><p>foo</p></div>
+		<h3>Mozile Basic Demonstration</h3>
+		
+		<p>This page is a demonstration of the latest version of <a href="http://mozile.mozdev.org">Mozile</a> version 0.8. Mozile is still in development, so it is not yet feature complete and it still has some bugs. Never-the-less, let's see what Mozile can do!</p>
+		
+		<p>The demo has been tested with:</p>
+		<ul>
+			<li><a href="http://mozilla.com/firefox/">Firefox 1.5</a></li>
+			<li><a href="http://www.microsoft.com/windows/ie/ie6/default.mspx">Internet Explorer 6</a></li>
+		</ul>
+		
+		<p>It's also expected to work with:</p>
+		<ul>
+			<li><a href="http://www.mozilla.org/projects/seamonkey/">Seamonkey 1.0.4</a></li>
+			<li><a href="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/1.0.8/">Firefox 1.0.8</a></li>
+			<li><a href="http://www.mozilla.org/products/mozilla1.x/">Mozilla Suite 1.7.13</a></li>
+		</ul>
+
+		<table>
+			<tr style="font-weight: bold; text-align: center">
+				<td style="width: 33%">Implemented</td>
+				<td style="width: 33%">Not Yet Implemented</td>
+				<td style="width: 33%">Known Issues and Notes</td>
+			</tr>
+			<tr style="vertical-align: top">
+				<td>
+		<ul>
+			<li>Text insertion.</li>
+			<li>Delete text and nodes.</li>
+			<li>Split blocks using the "enter" key.</li>
+			<li>Merge blocks using delete keys.</li>
+			<li>Unlimited levels of undo and redo.</li>
+			<li>Insertion point handling.</li>
+			<li>Empty block handling.</li>
+			<li>Element insertion or wrapping.</li>
+			<li>Toolbar interface.</li>
+			<li>Source dump (Command-S).</li>
+			<li>Debugging console (Command-D).</li>
+			<li>Help system and documentation.</li>
+			<li>Saving. Dump source and POST.</li>
+			<li>Copy, cut, paste. (Can't paste from system clipboard.)</li>
+			<li>Support for editing XML documents.</li>
+			<li>Formatting commands (h1, p, div, etc.).</li>
+			<li>Justification commands (left, right, center, full).</li>
+			<li>"Unwrap" mode for wrap commands (i.e. remove bold).</li>
+			<li>Tab and Shift-Tab navigate between block-level elements.</li>
+			<li>Inline white space handling (<a href="http://www.mozdev.org/pipermail/mozile/2006-June/001057.html">discussion</a>).</li>
+			<li>Tooltips.</li>
+		</ul>
+				</td>
+				<td>
+		<ul>
+			<li>Validation.</li>
+			<li>Non-editable areas (partially supported).</li>
+			<li>Drag and drop handling.</li>
+			<li>Lots of other nice features...</li>
+		</ul>
+				</td>
+				<td>
+		<ul>
+			<li>Not yet optimized for performance.</li>
+			<li>Toolbar menus can float out of view.</li>
+		</ul>
+				</td>
+			</tr>
+		</table>
+		<p style="font-size: smaller">(Note: "Command" translates as the "Control" key on Windows and Linux, and the "Apple" key on Mac OS X.)</p>
+		<h4 style="color: red; text-align: center">Firefox users must press F7 to enable an editing cursor.</h4>
+		
+		<div class="editor">
+			<h3 id="target" class="fred" style="color: black" href="bob" chair="table">Mozile Basics</h3>
+			<p id="target2">Anything within this dashed red border is editable by Mozile. If you are using a supported browser, <!--comment-->then you should be able to click here and start typing.</p>
+			<p>Mozile strives to work very much like a normal word-processor. What can you do? Well, when editing <strong id="target3">XHTML</strong> you can do most of the things that you can do in a normal word-processor. Try it! You can:</p>
+			<ul>
+				<li>Make text <strong>bold (strong)</strong>, <em>italic (emphasis)</em>, <span style="text-decoration: underline;">underlined</span>, or <strong><em><span style="text-decoration: underline;">all three at once</span></em></strong>.</li>
+				<li>You can apply CSS styles with the click of a button, making text <span style="font-size: large;">large</span> or <span style="font-size: small;">small</span>, <sup>superscript</sup>, <sub>subscript</sub>, <span style="font-family: sans-serif;">different</span> <span style="font-family: monospace;">fonts</span>, and with <span style="color: green;">different</span> <span style="color: red;">foreground</span> <span style="background-color: black;"><span style="color: white;">and</span></span> <span style="background-color: blue;">background</span> <span style="background-color: orange;">colors</span>.</li>
+				<li style="text-align: right;">You can justify a block of text to the right hand side of the page.</li>
+				<li>You can also remove the formatting from a section of text.</li>
+				<li style="font-family: monospace; white-space: pre;">You can edit preformatted text,   where spaces,		tabs, and 
+	newlines are preserved.</li>
+				<li>Insert <a href="http://mozile.mozdev.org">links</a>, images <img src="../images/silk/cut.png"/>, lists. Change the document title, the style attribute of an element, or set any attribute of the selected element to any value you want.</li>
+				<li>Edit HTML, XHTML, and many types of XML documents.</li>
+				<li><em>And more!</em></li>
+			</ul>
+			<p>Mozile is designed to be exceptionally configurable. You can create your own commands, which can do anything to your documents that JavaScript, the DOM, and CSS can do.</p>
+			<p id="testContent">_Content.          More.<img src="../images/Mozile-16.png"/> <img src="../images/Mozile-16.png"/><img src="../images/Mozile-16.png"/><img src="../images/Mozile-16.png"/>More.<!--Comment-->More.<img src="../images/Mozile-16.png"/><!--Comment--><img src="../images/Mozile-16.png"/>More.<img src="../images/Mozile-16.png"/><!--Comment--><!--Comment--><!--Comment--><!--Comment--><strong>Content.</strong><img src="../images/Mozile-16.png"/>More.<em>Content.</em>More.<strong><em>Content.</em></strong>More._</p>
+		</div>
+		
+	</body>
+</html>

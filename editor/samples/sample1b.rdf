@@ -21,7 +21,7 @@ xmlns="http://discobits.org/ontology#">
         <holds>
           <XHTMLInfoDB rdf:about="http://example.org/disco/2">
             <rdfs:comment xml:lang="en">html/title XHTMLInfoDB</rdfs:comment>
-            <infoBit rdf:parseType="Literal">Sample <xhtml:b>bold</xhtml:b>One</infoBit>
+            <infoBit rdf:parseType="Literal">Sample <xhtml:strong>bold</xhtml:strong>One</infoBit>
           </XHTMLInfoDB>
         </holds>
       </Entry>

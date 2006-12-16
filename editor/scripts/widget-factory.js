@@ -6,28 +6,96 @@ function WidgetFactory() {
 
 WidgetFactory.store = load('sample1b.rdf');
 WidgetFactory.create = function(rdfSymbol, xhtmlContainer) {
-	
+	xhtmlContainer.style.border = "dashed";
+	xhtmlContainer.style.borderWidth = "1px 1px 0px 0px";
+	var controlArea = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+	controlArea.className = "controlArea";
+	controlArea.style.visibility ="hidden";
+	var saveLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+	//saveLink.appendChild(document.createTextNode("Save"));
+	var saveIcon = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
+	saveLink.appendChild(saveIcon);
+	saveIcon.src = "../scripts/mozile/images/silk/page_save.png";
+	saveLink.onclick = function() {
+		alert("connection error");
+	}
+	controlArea.appendChild(saveLink);
+	xhtmlContainer.appendChild(controlArea);	
+	var typeWidget = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+	typeWidget.className = "typeWidget";
+	xhtmlContainer.appendChild(typeWidget);
+	var controller = new Object();
+	controller.modified = function() {
+		controlArea.style.visibility ="";
+	} 
+	var result;
 	//	alert("hasType "+WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB")));
 	if(WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB"))) {
-		return new XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer);
+		result = new XHTMLInfoDBWidget(rdfSymbol, typeWidget, controller);
+	} else {
+		if(WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#OrderedContent"))) {
+			result = new OrderedContentWidget(rdfSymbol, typeWidget);
+		}	else {			
+			if(WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#TitledContent"))) {
+				result = new TitledContentWidget(rdfSymbol, typeWidget);
+			}
+		}
 	}
-	
-	if(WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#OrderedContent"))) {
-		return new OrderedContentWidget(rdfSymbol, xhtmlContainer);
-	}	
-	
-	if(WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#TitledContent"))) {
-		return new TitledContentWidget(rdfSymbol, xhtmlContainer);
+	return result;
+}
+
+// Configure Mozile Basics
+mozile.root = "../scripts/mozile/";
+mozile.useSchema("lib/xhtml.rng");
+/*mozile.debug.logLevel = "debug";
+mozile.require("mozile.dom");
+mozile.require("mozile.xml");
+mozile.require("mozile.xpath");
+mozile.require("mozile.util");
+mozile.require("mozile.edit");
+mozile.require("mozile.edit.rich");
+mozile.require("mozile.event");
+mozile.require("mozile.save");
+mozile.require("mozile.save.tidy");
+mozile.require("mozile.save.extract");
+mozile.require("mozile.gui");
+mozile.require("mozile.gui.htmlToolbar");
+
+mozile.useSchema("../scripts/mozile/lib/xhtml.rng");
+mozile.require("mozile.save.post");
+mozile.save.target = document;
+mozile.save.format = null;
+mozile.save.warn = true;
+mozile.save.method = mozile.save.post;
+mozile.save.post.async = true;
+//TODO get single source attribute or 
+mozile.save.post.uri = "/save-stuff";
+mozile.save.post.user = null;
+mozile.save.post.password = null;
+mozile.save.post.showResponse = false;*/
+{
+	var found = false;
+	for(var i=0; i < mozile.edit.commands._commands.length; i++) {
+		if(mozile.edit.commands._commands[i] == mozile.edit.save);
+		//delete(mozile.edit.commands._commands[i]);
+		found = true;
+		if (found) {
+			mozile.edit.commands._commands[i] = mozile.edit.commands._commands[i+1];
+		}
 	}
+	mozile.edit.commands._commands.pop();
 }
 
 	
-function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer) {
+function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer, controller) {
 // alert("XHTMLInfoDBWidget "+rdfSymbol+" "+xhtmlContainer);
 	var infobitProperty = WidgetFactory.store.anyStatementMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), undefined);
 	var objectElement = infobitProperty.object.elementValue;
-	
+	//var editableParagraph = document.createElementNS("http://www.w3.org/1999/xhtml", "p");
+	//xhtmlContainer.appendChild(editableParagraph);
 	WidgetFactory.appendChildrenInDiv(objectElement, xhtmlContainer);
+	mozile.editElement(xhtmlContainer.childNodes[0]);
+	xhtmlContainer.childNodes[0].addEventListener("change", controller.modified, false);
 }
 
 
@@ -124,7 +192,7 @@ WidgetFactory.hasType = function(rdfSymbol, type) {
 }
 
 WidgetFactory.appendChildrenInDiv = function(objectElement, xhtmlContainer) {
-		var div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+		var div = document.createElementNS("http://www.w3.org/1999/xhtml", "p");
 		if (typeof(console) !=  'undefined') {
 			console.debug(objectElement);
 		}
