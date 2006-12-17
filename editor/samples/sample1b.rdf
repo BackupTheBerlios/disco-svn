@@ -13,13 +13,13 @@ xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
 xmlns:xhtml="http://www.w3.org/1999/xhtml"
 xmlns="http://discobits.org/ontology#">
 
-  <TitledContent rdf:about="http://example.org/disco/1">
+  <TitledContent rdf:about="./disco/1">
     <rdfs:comment xml:lang="en">HTML doc level TitledContent</rdfs:comment>
     <contains>
       <Entry>
         <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</pos>
         <holds>
-          <XHTMLInfoDB rdf:about="http://example.org/disco/2">
+          <XHTMLInfoDB rdf:about="./disco/2">
             <rdfs:comment xml:lang="en">html/title XHTMLInfoDB</rdfs:comment>
             <infoBit rdf:parseType="Literal">Sample <xhtml:strong>bold</xhtml:strong>One</infoBit>
           </XHTMLInfoDB>
@@ -30,13 +30,13 @@ xmlns="http://discobits.org/ontology#">
       <Entry>
         <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</pos>
         <holds>
-          <TitledContent rdf:about="http://example.org/disco/3">
+          <TitledContent rdf:about="./disco/3">
             <rdfs:comment xml:lang="en">HTML body level</rdfs:comment>
             <contains>
               <Entry>
                 <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</pos>
                 <holds>
-                  <XHTMLInfoDB rdf:about="http://example.org/disco/4">
+                  <XHTMLInfoDB rdf:about="./disco/4">
                     <rdfs:comment xml:lang="en">the top heading XHTMLInfoDB</rdfs:comment>
                     <infoBit rdf:parseType="Literal">Top Heading</infoBit>
                   </XHTMLInfoDB>
@@ -47,13 +47,13 @@ xmlns="http://discobits.org/ontology#">
               <Entry>
                 <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</pos>
                 <holds>
-                  <OrderedContent rdf:about="http://example.org/disco/6">
+                  <OrderedContent rdf:about="./disco/6">
                     <rdfs:comment xml:lang="en">the upper OrderedContent</rdfs:comment>
                     <contains>
                       <Entry>
                         <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</pos>
                         <holds>
-                          <XHTMLInfoDB rdf:about="http://example.org/disco/7">
+                          <XHTMLInfoDB rdf:about="./disco/7">
                             <rdfs:comment xml:lang="en">the First Paragraph XHTMLInfoDB</rdfs:comment>
                             <infoBit rdf:parseType="Literal">First Paragraph</infoBit>
                           </XHTMLInfoDB>
@@ -64,7 +64,7 @@ xmlns="http://discobits.org/ontology#">
                       <Entry>
                         <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</pos>
                         <holds>
-                          <XHTMLInfoDB rdf:about="http://example.org/disco/8">
+                          <XHTMLInfoDB rdf:about="./disco/8">
                             <rdfs:comment xml:lang="en">the Second Paragraph XHTMLInfoDB</rdfs:comment>
                             <infoBit rdf:parseType="Literal">Second Paragraph</infoBit>
                           </XHTMLInfoDB>
@@ -75,13 +75,13 @@ xmlns="http://discobits.org/ontology#">
                       <Entry>
                         <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</pos>
                         <holds>
-                          <TitledContent rdf:about="http://example.org/disco/9">
+                          <TitledContent rdf:about="./disco/9">
                             <rdfs:comment xml:lang="en">H2 level TitledContent</rdfs:comment>
                             <contains>
                               <Entry>
                                 <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</pos>
                                 <holds>
-                                  <XHTMLInfoDB rdf:about="http://example.org/disco/10">
+                                  <XHTMLInfoDB rdf:about="./disco/10">
                                     <rdfs:comment xml:lang="en">2nd heading XHTMLInfoDB</rdfs:comment>
                                     <infoBit rdf:parseType="Literal">2nd heading</infoBit>
                                   </XHTMLInfoDB>
@@ -92,7 +92,7 @@ xmlns="http://discobits.org/ontology#">
                               <Entry>
                                 <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</pos>
                                 <holds>
-                                  <XHTMLInfoDB rdf:about="http://example.org/disco/11">
+                                  <XHTMLInfoDB rdf:about="./disco/11">
                                     <rdfs:comment xml:lang="en">sub paragraph XHTMLInfoDB</rdfs:comment>
                                     <infoBit rdf:parseType="Literal">sub paragraph</infoBit>
                                   </XHTMLInfoDB>

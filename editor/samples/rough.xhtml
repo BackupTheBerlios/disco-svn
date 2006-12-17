@@ -23,15 +23,20 @@
 	
 	function doStuff() {
 		// 1 is a TitledContent
-		WidgetFactory.create(new RDFSymbol('http://example.org/disco/1'), document.getElementById('place'));
+		WidgetFactory.create(
+			new RDFSymbol(
+				document.location.toString().substring(
+					0, document.location.toString().lastIndexOf('/')+1)
+			+'disco/1'), 
+			document.getElementById('place'));
 		// 2 is a XHTMLInfoDB
 		// WidgetFactory.create(new RDFSymbol('http://example.org/disco/2'), document.getElementById('place'));
 		// 6 is a OrderedContent
 		// WidgetFactory.create(new RDFSymbol('http://example.org/disco/6'), document.getElementById('place'));
 		
 		
-		document.getElementById('textout').value = 
-			new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(load('sample1b.rdf')));
+		/*document.getElementById('textout').value = 
+			new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(load('sample1b.rdf')));*/
 	}
 	
 	function putData() {

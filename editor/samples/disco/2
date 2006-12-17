@@ -1,0 +1,1 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="http://localhost/disco/samples/disco/2"><infoBit xmlns="http://discobits.org/ontology#" rdf:parseType="Literal">Sample <xhtml:strong xmlns:xhtml="http://www.w3.org/1999/xhtml">bold</xhtml:strong> One</infoBit></rdf:Description></rdf:RDF>

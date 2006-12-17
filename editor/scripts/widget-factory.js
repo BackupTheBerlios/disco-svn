@@ -4,20 +4,29 @@ function WidgetFactory() {
 	
 }
 
-WidgetFactory.store = load('sample1b.rdf');
+WidgetFactory.store = load(document.location.toString().substring(0, document.location.toString().lastIndexOf('/')+1)+'sample1b.rdf');
 WidgetFactory.create = function(rdfSymbol, xhtmlContainer) {
+	var result;
 	xhtmlContainer.style.border = "dashed";
 	xhtmlContainer.style.borderWidth = "1px 1px 0px 0px";
 	var controlArea = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
 	controlArea.className = "controlArea";
-	controlArea.style.visibility ="hidden";
+	var viewSourceLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+	viewSourceLink.appendChild(document.createTextNode("RDF"));
+	viewSourceLink.onclick = function() {
+		alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(result.getStore())));
+	}
+	viewSourceLink.href = "#";
+	controlArea.appendChild(viewSourceLink);
 	var saveLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+	saveLink.style.visibility ="hidden";
 	//saveLink.appendChild(document.createTextNode("Save"));
 	var saveIcon = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
 	saveLink.appendChild(saveIcon);
 	saveIcon.src = "../scripts/mozile/images/silk/page_save.png";
+	;
 	saveLink.onclick = function() {
-		alert("connection error");
+		result.save();
 	}
 	controlArea.appendChild(saveLink);
 	xhtmlContainer.appendChild(controlArea);	
@@ -25,10 +34,14 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer) {
 	typeWidget.className = "typeWidget";
 	xhtmlContainer.appendChild(typeWidget);
 	var controller = new Object();
-	controller.modified = function() {
-		controlArea.style.visibility ="";
+	controller.modifiedStateChanged = function(newState) {
+		if (newState) {
+			saveLink.style.visibility ="";
+		} else {
+			saveLink.style.visibility ="hidden";
+		}
 	} 
-	var result;
+	
 	//	alert("hasType "+WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB")));
 	if(WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB"))) {
 		result = new XHTMLInfoDBWidget(rdfSymbol, typeWidget, controller);
@@ -44,35 +57,12 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer) {
 	return result;
 }
 
+
 // Configure Mozile Basics
 mozile.root = "../scripts/mozile/";
 mozile.useSchema("lib/xhtml.rng");
-/*mozile.debug.logLevel = "debug";
-mozile.require("mozile.dom");
-mozile.require("mozile.xml");
-mozile.require("mozile.xpath");
-mozile.require("mozile.util");
-mozile.require("mozile.edit");
-mozile.require("mozile.edit.rich");
-mozile.require("mozile.event");
-mozile.require("mozile.save");
-mozile.require("mozile.save.tidy");
-mozile.require("mozile.save.extract");
-mozile.require("mozile.gui");
-mozile.require("mozile.gui.htmlToolbar");
+//mozile.debug.logLevel = "debug";
 
-mozile.useSchema("../scripts/mozile/lib/xhtml.rng");
-mozile.require("mozile.save.post");
-mozile.save.target = document;
-mozile.save.format = null;
-mozile.save.warn = true;
-mozile.save.method = mozile.save.post;
-mozile.save.post.async = true;
-//TODO get single source attribute or 
-mozile.save.post.uri = "/save-stuff";
-mozile.save.post.user = null;
-mozile.save.post.password = null;
-mozile.save.post.showResponse = false;*/
 {
 	var found = false;
 	for(var i=0; i < mozile.edit.commands._commands.length; i++) {
@@ -88,14 +78,32 @@ mozile.save.post.showResponse = false;*/
 
 	
 function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer, controller) {
-// alert("XHTMLInfoDBWidget "+rdfSymbol+" "+xhtmlContainer);
+	this.rdfSymbol = rdfSymbol;
+	this.controller = controller;
 	var infobitProperty = WidgetFactory.store.anyStatementMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), undefined);
 	var objectElement = infobitProperty.object.elementValue;
 	//var editableParagraph = document.createElementNS("http://www.w3.org/1999/xhtml", "p");
 	//xhtmlContainer.appendChild(editableParagraph);
 	WidgetFactory.appendChildrenInDiv(objectElement, xhtmlContainer);
-	mozile.editElement(xhtmlContainer.childNodes[0]);
-	xhtmlContainer.childNodes[0].addEventListener("change", controller.modified, false);
+	this.editableArea = xhtmlContainer.childNodes[0];
+	mozile.editElement(this.editableArea);
+	var modifiedTrue = function() {
+		controller.modifiedStateChanged(true);
+	}
+	this.editableArea.addEventListener("change", modifiedTrue, false);
+}
+
+XHTMLInfoDBWidget.prototype.getStore = function() {
+	var store = new RDFIndexedFormula();
+	store.add(this.rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), new RDFLiteral(this.editableArea));
+	return store;
+}
+
+XHTMLInfoDBWidget.prototype.save = function() {
+	var store = this.getStore();
+	//alert("saving "+new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(this.getStore())));
+	WidgetFactory.putData(this.rdfSymbol, store);
+	this.controller.modifiedStateChanged(false);
 }
 
 
@@ -204,6 +212,14 @@ WidgetFactory.appendChildrenInDiv = function(objectElement, xhtmlContainer) {
 		}
 		xhtmlContainer.appendChild(div);	
 	}
+WidgetFactory.putData = function(rdfSymbol, store) {
+	var url = rdfSymbol.uri;
+	var xhr = Util.XMLHTTPFactory();
+	xhr.open("PUT", url, false);
+	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
+	xhr.send(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(store)));
+	//alert(xhr.responseText);
+}
 //////////////////
 
 
