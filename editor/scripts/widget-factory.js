@@ -223,15 +223,14 @@ WidgetFactory.putData = function(rdfSymbol, store) {
 	var xhr = Util.XMLHTTPFactory();
 	var collectionURL = url.substring(0, url.lastIndexOf('/')+1);
 	xhr.open("CHECKOUT", collectionURL, false);
-	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
-	xhr.send();
+	xhr.setRequestHeader("Content-Type", "textxml");
+	xhr.send("<D:checkout xmlns:D=\"DAV:\"/>");
 	xhr = Util.XMLHTTPFactory();
 	xhr.open("PUT", url, false);
 	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
 	xhr.send(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(store, rdfSymbol.uri)));
 	//alert(xhr.responseText);
 	xhr.open("CHECKIN", collectionURL, false);
-	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
 	xhr.send();
 	xhr = Util.XMLHTTPFactory();
 }
