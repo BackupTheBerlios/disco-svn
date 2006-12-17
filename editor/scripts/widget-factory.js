@@ -14,7 +14,7 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer) {
 	var viewSourceLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
 	viewSourceLink.appendChild(document.createTextNode("RDF"));
 	viewSourceLink.onclick = function() {
-		alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(result.getStore())));
+		alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(result.getStore(), rdfSymbol.uri)));
 	}
 	viewSourceLink.href = "#";
 	controlArea.appendChild(viewSourceLink);
@@ -223,7 +223,7 @@ WidgetFactory.putData = function(rdfSymbol, store) {
 	var xhr = Util.XMLHTTPFactory();
 	xhr.open("PUT", url, false);
 	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
-	xhr.send(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(store)));
+	xhr.send(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(store, rdfSymbol.uri)));
 	//alert(xhr.responseText);
 }
 
@@ -232,6 +232,8 @@ WidgetFactory.ensureDicoBitLoaded = function(rdfSymbol) {
 		load(rdfSymbol.uri, WidgetFactory.store);
 	}
 }
+
+
 
 //////////////////
 

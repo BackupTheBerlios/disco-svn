@@ -2,21 +2,21 @@ function RDFXMLSerializer() {
 }
 
 
-RDFXMLSerializer.serialize = function(rdfFormula) {
+RDFXMLSerializer.serialize = function(rdfFormula, baseURL) {
 	var statements = rdfFormula.statements;
 	var result = document.implementation.createDocument("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:RDF", null);
 	var root = result.firstChild;
 	for (var i = 0; i < statements.length; i++) {
-		RDFXMLSerializer.addStatement(statements[i], result, root);
+		RDFXMLSerializer.addStatement(statements[i], result, root, baseURL);
 	}
 	//alert(new XMLSerializer().serializeToString(result));
 	return result;
 }
 
-RDFXMLSerializer.addStatement = function(statement, result, root) {
+RDFXMLSerializer.addStatement = function(statement, result, root, baseURL) {
 	var elem = result.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:Description");
 	if (statement.subject.termType == "symbol") {
-		elem.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:about", statement.subject.uri);
+		elem.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:about", RDFXMLSerializer.getRelativePath(statement.subject.uri, baseURL));
 	} else {
 		elem.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:nodeID", "a"+statement.subject.id);
 	}
@@ -25,7 +25,7 @@ RDFXMLSerializer.addStatement = function(statement, result, root) {
 	var propertyElem = result.createElementNS(splittedURI.ns, splittedURI.name);
 	elem.appendChild(propertyElem);
 	if (statement.object.termType == "symbol") {
-		propertyElem.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:resource", statement.object.uri);
+		propertyElem.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:resource", RDFXMLSerializer.getRelativePath(statement.object.uri, baseURL));
 	} else {
 		if (statement.object.termType == "literal") {
 			//note supports hacked xml-literals, other types are not in the store
@@ -61,4 +61,16 @@ RDFXMLSerializer.splitURI = function(uri) {
 	result.name = uri.substring(splitPos+1);
 	return result;
 	
+}
+
+RDFXMLSerializer.getRelativePath = function(url, contextURL) {
+	if (!contextURL) {
+		return url;
+	}
+	var splittedURL = RDFXMLSerializer.splitURI(url);
+	var splittedContextURL = RDFXMLSerializer.splitURI(contextURL);	
+	if (splittedURL.ns != splittedContextURL.ns) {
+		return url;
+	}
+	return splittedURL.name;
 }
