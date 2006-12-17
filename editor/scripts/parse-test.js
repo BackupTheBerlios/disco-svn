@@ -8,8 +8,13 @@
 //  (extends RDFFormula from dig.csail.mit.edu/2005/ajar/ajaw/rdf/term.js no indexing and smushing)
 // for the real implementation used by Tabulator which uses indexing and smushing
 
-function load(url) {
-var store = new RDFIndexedFormula()
+function load(url, pStore) {
+var store;
+if (pStore) {
+	store = pStore;
+} else {
+	store = new RDFIndexedFormula();
+}
 var parser = new RDFParser(store);
 parser.reify = parser.forceRDF = true;
 // forceRDF isn't used??

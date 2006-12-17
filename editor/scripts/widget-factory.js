@@ -43,6 +43,7 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer) {
 	} 
 	
 	//	alert("hasType "+WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB")));
+	WidgetFactory.ensureDicoBitLoaded(rdfSymbol);
 	if(WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB"))) {
 		result = new XHTMLInfoDBWidget(rdfSymbol, typeWidget, controller);
 	} else {
@@ -80,6 +81,7 @@ mozile.useSchema("lib/xhtml.rng");
 function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer, controller) {
 	this.rdfSymbol = rdfSymbol;
 	this.controller = controller;
+	
 	var infobitProperty = WidgetFactory.store.anyStatementMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), undefined);
 	var objectElement = infobitProperty.object.elementValue;
 	//var editableParagraph = document.createElementNS("http://www.w3.org/1999/xhtml", "p");
@@ -96,6 +98,9 @@ function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer, controller) {
 XHTMLInfoDBWidget.prototype.getStore = function() {
 	var store = new RDFIndexedFormula();
 	store.add(this.rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), new RDFLiteral(this.editableArea));
+	store.add(this.rdfSymbol, 
+		new RDFSymbol('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+		new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB"));
 	return store;
 }
 
@@ -195,8 +200,9 @@ WidgetFactory.addClass = function(elem, className) {
 	
 }
 WidgetFactory.hasType = function(rdfSymbol, type) {
-// alert("anyStatementMatching "+WidgetFactory.store.anyStatementMatching(rdfSymbol, undefined, type));
-	return (typeof(WidgetFactory.store.anyStatementMatching(rdfSymbol, undefined, type)) != 'undefined')
+ 	//alert("anyStatementMatching for "+rdfSymbol+WidgetFactory.store.anyStatementMatching(rdfSymbol, undefined, undefined));
+	//return (typeof(WidgetFactory.store.anyStatementMatching(rdfSymbol, undefined, type)) != 'undefined')
+	return (typeof(WidgetFactory.store.anyStatementMatching(rdfSymbol, new RDFSymbol('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), type)) != 'undefined')
 }
 
 WidgetFactory.appendChildrenInDiv = function(objectElement, xhtmlContainer) {
@@ -220,6 +226,13 @@ WidgetFactory.putData = function(rdfSymbol, store) {
 	xhr.send(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(store)));
 	//alert(xhr.responseText);
 }
+
+WidgetFactory.ensureDicoBitLoaded = function(rdfSymbol) {
+	if (typeof(WidgetFactory.store.anyStatementMatching(rdfSymbol)) == 'undefined') {
+		load(rdfSymbol.uri, WidgetFactory.store);
+	}
+}
+
 //////////////////
 
 
