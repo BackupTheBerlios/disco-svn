@@ -221,7 +221,8 @@ WidgetFactory.appendChildrenInDiv = function(objectElement, xhtmlContainer) {
 WidgetFactory.putData = function(rdfSymbol, store) {
 	var url = rdfSymbol.uri;
 	var xhr = Util.XMLHTTPFactory();
-	xhr.open("CHECKOUT", url, false);
+	var collectionURL = url.substring(0, url.lastIndexOf('/')+1);
+	xhr.open("CHECKOUT", collectionURL, false);
 	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
 	xhr.send();
 	xhr = Util.XMLHTTPFactory();
@@ -229,7 +230,7 @@ WidgetFactory.putData = function(rdfSymbol, store) {
 	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
 	xhr.send(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(store, rdfSymbol.uri)));
 	//alert(xhr.responseText);
-	xhr.open("CHECKIN", url, false);
+	xhr.open("CHECKIN", collectionURL, false);
 	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
 	xhr.send();
 	xhr = Util.XMLHTTPFactory();
