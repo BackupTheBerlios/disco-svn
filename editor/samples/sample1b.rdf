@@ -47,34 +47,17 @@ xmlns="http://discobits.org/ontology#">
             <contains>
               <Entry>
                 <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</pos>
-                <holds>
-                  <OrderedContent rdf:about="./disco/6">
-                    <rdfs:comment xml:lang="en">the upper OrderedContent</rdfs:comment>
-                    <contains>
-                      <Entry>
-                        <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</pos>
-                        <holds rdf:resource="./disco/7" />
-                        <!--    <rdfs:comment xml:lang="en">the First Paragraph XHTMLInfoDB</rdfs:comment>
-                            <infoBit rdf:parseType="Literal">First Paragraph</infoBit>
-                          </XHTMLInfoDB>
-                        </holds>  --> 
-                      </Entry>
-                    </contains>
-                    <contains>
-                      <Entry>
-                        <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</pos>
-                        <holds rdf:resource="./disco/8" />
-                            <!-- <rdfs:comment xml:lang="en">the Second Paragraph XHTMLInfoDB</rdfs:comment>
-                            <infoBit rdf:parseType="Literal">Second Paragraph</infoBit>
-                          </XHTMLInfoDB> 
-                        </holds> -->
-                      </Entry>
-                    </contains>
-                    <contains>
-                      <Entry>
-                        <pos rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</pos>
-                        <holds>
-                          <TitledContent rdf:about="./disco/9">
+                <holds rdf:resource="./disco/6" />
+      
+
+              </Entry>
+            </contains>
+          </TitledContent>
+        </holds>
+      </Entry>
+    </contains>
+  </TitledContent>
+  <TitledContent rdf:about="./disco/9">
                             <rdfs:comment xml:lang="en">H2 level TitledContent</rdfs:comment>
                             <contains>
                               <Entry>
@@ -97,16 +80,4 @@ xmlns="http://discobits.org/ontology#">
                               </Entry>
                             </contains>
                           </TitledContent>
-                        </holds>
-                      </Entry>
-                    </contains>
-                  </OrderedContent>
-                </holds>
-              </Entry>
-            </contains>
-          </TitledContent>
-        </holds>
-      </Entry>
-    </contains>
-  </TitledContent>
 </rdf:RDF>
