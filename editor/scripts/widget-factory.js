@@ -92,6 +92,8 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 		}	else {			
 			if(WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#TitledContent"))) {
 				result = new TitledContentWidget(rdfSymbol, typeWidget);
+			} else {
+				throw new Error(rdfSymbol+" no good");
 			}
 		}
 	}
@@ -373,7 +375,7 @@ WidgetFactory.putData = function(rdfSymbol, store) {
 	xhr.send(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(store, rdfSymbol.uri)));
 	//alert(xhr.responseText);
 	xhr.open("CHECKIN", collectionURL, false);
-	xhr.send();
+	xhr.send("");
 	xhr = Util.XMLHTTPFactory();
 }
 
@@ -383,7 +385,47 @@ WidgetFactory.ensureDicoBitLoaded = function(rdfSymbol) {
 	}
 }
 
-
+//should probably be in Util
+function load(url, pStore) {
+	var store;
+	if (pStore) {
+		store = pStore;
+	} else {
+		store = new RDFIndexedFormula();
+	}
+	var parser = new RDFParser(store);
+	parser.reify = parser.forceRDF = true;
+	// forceRDF isn't used??
+	
+	
+	// var url = 'http://something.or/other';
+	
+	// get the XML
+	var xhr = Util.XMLHTTPFactory(); // returns a new XMLHttpRequest, or ActiveX XMLHTTP object
+	if (xhr.overrideMimeType) {
+	    xhr.overrideMimeType("text/xml");
+	}
+	// the "data/" path and encoding is just how I store files locally
+	xhr.open("GET", url, false);
+	// xhr.open("GET", "data/" + encodeURIComponent(encodeURIComponent(url)), false);
+	xhr.send("");
+	var nodeTree = xhr.responseXML;
+	if (nodeTree === null && xhr.responseText !== null) {
+	    // Only if the server fails to set Content-Type: text/xml AND xmlhttprequest doesn't have the overrideMimeType method
+	    console.debug("no responseXML, parsing responseText");
+	    nodeTree = (new DOMParser()).parseFromString(xhr.responseText, 'text/xml');
+	}
+	// must be an XML document node tree
+	parser.parse(nodeTree,url);
+	
+	// use FireBug extension to inspect console.debug'd objects
+	// Using TestStore you can access store.triples
+	if (typeof(console) !=  'undefined') {
+		console.debug('store',store);
+	}
+	
+	return store;
+}
 
 //////////////////
 
