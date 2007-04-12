@@ -4,7 +4,6 @@ function WidgetFactory() {
 	
 }
 
-WidgetFactory.store = load(document.location.toString().substring(0, document.location.toString().lastIndexOf('/')+1)+'sample1b.rdf');
 WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 	var result;
 	xhtmlContainer.style.border = "dashed";
@@ -63,7 +62,7 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 	//saveLink.appendChild(document.createTextNode("Save"));
 	var saveIcon = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
 	saveLink.appendChild(saveIcon);
-	saveIcon.src = "../scripts/mozile/images/silk/page_save.png";
+	saveIcon.src = WidgetFactory.root+"mozile/images/silk/page_save.png";
 	;
 	saveLink.onclick = function() {
 		result.save();
@@ -100,13 +99,21 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 	result.fillContextControler = fillContextControler;
 	result.xhtmlContainer = xhtmlContainer
 	result.rdfSymbol = rdfSymbol;
+	if (result.getStore) {
+		result.lastSavedContent = result.getStore();
+		result.save = function() {
+			var store = result.getStore();
+			WidgetFactory.putData(result.rdfSymbol, store, result.lastSavedContent);
+			result.lastSavedContent = store;
+			result.controller.modifiedStateChanged(false);
+		}
+	}
+	//alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(result.getStore(), rdfSymbol.uri)));
 	return result;
 }
 
 
-// Configure Mozile Basics
-mozile.root = "../scripts/mozile/";
-mozile.useSchema("lib/xhtml.rng");
+
 //mozile.debug.logLevel = "debug";
 
 {
@@ -124,6 +131,9 @@ mozile.useSchema("lib/xhtml.rng");
 
 	
 function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer, controller) {
+	// Configure Mozile Basics
+	mozile.root = WidgetFactory.root+"mozile/";
+	mozile.useSchema("lib/xhtml.rng");
 	this.rdfSymbol = rdfSymbol;
 	this.controller = controller;
 	
@@ -149,12 +159,7 @@ XHTMLInfoDBWidget.prototype.getStore = function() {
 	return store;
 }
 
-XHTMLInfoDBWidget.prototype.save = function() {
-	var store = this.getStore();
-	//alert("saving "+new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(this.getStore())));
-	WidgetFactory.putData(this.rdfSymbol, store);
-	this.controller.modifiedStateChanged(false);
-}
+
 
 
 
@@ -307,11 +312,7 @@ OrderedContentWidget.prototype.getEntryForChild = function(store, entryPos) {
 		this.childWidgets[entryPos].rdfSymbol);
 	return result;
 }
-OrderedContentWidget.prototype.save = function() {
-	var store = this.getStore();
-	WidgetFactory.putData(this.rdfSymbol, store);
-	this.controller.modifiedStateChanged(false);
-}
+
 
 function TitledContentWidget(rdfSymbol, xhtmlContainer) {
 	this.load(rdfSymbol, xhtmlContainer);
@@ -362,7 +363,7 @@ WidgetFactory.appendChildrenInDiv = function(objectElement, xhtmlContainer) {
 		}
 		xhtmlContainer.appendChild(div);	
 	}
-WidgetFactory.putData = function(rdfSymbol, store) {
+WidgetFactory.putData = function(rdfSymbol, store, previousStore) {
 	var url = rdfSymbol.uri;
 	var xhr = Util.XMLHTTPFactory();
 	var collectionURL = url.substring(0, url.lastIndexOf('/')+1);
@@ -381,12 +382,14 @@ WidgetFactory.putData = function(rdfSymbol, store) {
 
 WidgetFactory.ensureDicoBitLoaded = function(rdfSymbol) {
 	if (typeof(WidgetFactory.store.anyStatementMatching(rdfSymbol)) == 'undefined') {
-		load(rdfSymbol.uri, WidgetFactory.store);
+		WidgetFactory.load(rdfSymbol.uri, WidgetFactory.store);
 	}
 }
 
-//should probably be in Util
-function load(url, pStore) {
+WidgetFactory.createURIderefURL = function(uri) {
+	return uri;
+}
+WidgetFactory.load = function(url, pStore) {
 	var store;
 	if (pStore) {
 		store = pStore;
@@ -406,7 +409,7 @@ function load(url, pStore) {
 	    xhr.overrideMimeType("text/xml");
 	}
 	// the "data/" path and encoding is just how I store files locally
-	xhr.open("GET", url, false);
+	xhr.open("GET", WidgetFactory.createURIderefURL(url), false);
 	// xhr.open("GET", "data/" + encodeURIComponent(encodeURIComponent(url)), false);
 	xhr.send("");
 	var nodeTree = xhr.responseXML;
@@ -426,6 +429,9 @@ function load(url, pStore) {
 	
 	return store;
 }
+WidgetFactory.store = new RDFIndexedFormula();//WidgetFactory.load(document.location.toString().substring(0, document.location.toString().lastIndexOf('/')+1)+'sample1b.rdf');
+
+
 
 //////////////////
 
