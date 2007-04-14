@@ -15,6 +15,7 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 	viewSourceLink.appendChild(document.createTextNode("RDF"));
 	viewSourceLink.onclick = function() {
 		alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(result.getStore(), rdfSymbol.uri)));
+		return false;
 	}
 	viewSourceLink.href = "#";
 	controlArea.appendChild(viewSourceLink);
@@ -23,6 +24,7 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 	viewURILink.appendChild(document.createTextNode("URI"));
 	viewURILink.onclick = function() {
 		alert(rdfSymbol.uri);
+		return false;
 	}
 	viewURILink.href = "#";
 	controlArea.appendChild(viewURILink);
@@ -47,7 +49,8 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 			}
 			functionLinkElement.href = "#";
 			contextFunctionContainer.appendChild(functionLinkElement);
-			functionLinkElement.onclick = controlFunction.perform;
+			
+			functionLinkElement.onclick = WidgetFactory.createOnClickFromPerform(controlFunction.perform);
 			contextFunctionContainer.appendChild(document.createTextNode(" "));
 		}
 	}
@@ -112,6 +115,12 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 	return result;
 }
 
+WidgetFactory.createOnClickFromPerform = function(perform) {
+	return function() {
+		perform();
+		return false;
+	}
+}
 
 
 //mozile.debug.logLevel = "debug";
