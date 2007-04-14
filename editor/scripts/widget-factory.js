@@ -105,7 +105,8 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 	}
 
 	if (result == null) {
-		throw new Error(rdfSymbol+" no good");
+		//throw new Error(rdfSymbol+" no good");
+		result = new TypeSelectionWidget(rdfSymbol, typeWidget, xhtmlContainer, providedFunctions);
 	}
 	
 	var fillWidgetControler = function(widgetFunctions) {
@@ -137,6 +138,37 @@ WidgetFactory.createOnClickFromPerform = function(perform) {
 	}
 }
 
+TypeSelectionWidget = function(rdfSymbol, typeWidget, xhtmlContainer, providedFunctions) {
+	var select = document.createElementNS("http://www.w3.org/1999/xhtml", "select");
+	typeWidget.appendChild(select);
+	var selectText = "--- select type ----";
+	var option = document.createElementNS("http://www.w3.org/1999/xhtml", "option");
+		select.appendChild(option);
+		option.appendChild(document.createTextNode(selectText));
+	for (var i = 0; i < WidgetFactory.typeWidgets.length; i++) {
+		var option = document.createElementNS("http://www.w3.org/1999/xhtml", "option");
+		select.appendChild(option);
+		option.appendChild(document.createTextNode(WidgetFactory.typeWidgets[i].type.uri));
+	}
+	var button = document.createElementNS("http://www.w3.org/1999/xhtml", "button");
+	button.appendChild(document.createTextNode("set"));
+	button.disabled = true;
+	typeWidget.appendChild(button);
+	select.onchange = function() {
+		button.disabled = (this.value == selectText);
+	};
+	button.onclick = function() {
+		WidgetFactory.store.add(rdfSymbol, 
+			new RDFSymbol('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+			new RDFSymbol(select.value));
+		while (xhtmlContainer.firstChild) {
+			xhtmlContainer.removeChild(xhtmlContainer.firstChild);
+		}
+		WidgetFactory.create(rdfSymbol, xhtmlContainer, providedFunctions);
+		//alert(select.value);
+	};
+}
+
 
 //mozile.debug.logLevel = "debug";
 
@@ -162,7 +194,12 @@ function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer, controller) {
 	this.controller = controller;
 	
 	var infobitProperty = WidgetFactory.store.anyStatementMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), undefined);
-	var objectElement = infobitProperty.object.elementValue;
+	if (infobitProperty) {
+		var objectElement = infobitProperty.object.elementValue;
+	} else {
+		var objectElement = document.createElementNS("http://discobits.org/ontology#","infoBit");
+		objectElement.appendChild(document.createTextNode("empty"));
+	}
 	//var editableParagraph = document.createElementNS("http://www.w3.org/1999/xhtml", "p");
 	//xhtmlContainer.appendChild(editableParagraph);
 	WidgetFactory.appendChildrenInDiv(objectElement, xhtmlContainer);
@@ -197,12 +234,10 @@ function OrderedContentWidget(rdfSymbol, xhtmlContainer, controller) {
 	this.load(rdfSymbol, xhtmlContainer);	
 }
 
-OrderedContentWidget.type = new RDFSymbol("http://discobits.org/ontology#OrderedContent");
 
-WidgetFactory.typeWidgets.push(OrderedContentWidget);
 
 OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
-	
+
     // there is a shorthand
 	//var rdfType = new RDFSymbol("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
 
@@ -243,6 +278,10 @@ OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
     	
 }
 
+OrderedContentWidget.type = new RDFSymbol("http://discobits.org/ontology#OrderedContent");
+
+WidgetFactory.typeWidgets.push(OrderedContentWidget);
+
 OrderedContentWidget.prototype.addChild = function(child, pos) {
 	/*if (typeof(console) !=  'undefined') {
    		console.debug("recursing on "+child; 	
@@ -263,8 +302,13 @@ OrderedContentWidget.prototype.getWidgetControls = function() {
    	moveUpControl.label = "ADD";
    	var orderedContentWidget = this;
    	moveUpControl.perform = function() {
-   		var childRDFSymbol = new RDFSymbol("http://localhost:8585/children/0");
+   		var baseURI = orderedContentWidget.rdfSymbol.uri;
+   		if (!baseURI.match(/\/$/)) {
+   			baseURI += "/";
+   		}
+   		var childRDFSymbol = new RDFSymbol(baseURI+orderedContentWidget.childWidgets.length);
    		orderedContentWidget.addChild(childRDFSymbol, orderedContentWidget.childWidgets.length); 
+   		orderedContentWidget.controller.modifiedStateChanged(true);
    	}
    	controlFunctions[controlFunctions.length] = moveUpControl;
 	return controlFunctions;
