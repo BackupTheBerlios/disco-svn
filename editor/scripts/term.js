@@ -77,7 +77,7 @@ function RDFLiteral(value, lang, datatype) {
 	if (typeof value == 'object') {	
 		var serializer = new XMLSerializer();
 		this.value = serializer.serializeToString(value);
-		this.elementValue = value;
+		this.elementValue = value.cloneNode(true); //cloning so taht literal doesn't become mutable
 	} else {
 		//console.debug("value: " +value+" type "+ typeof value);
     	this.value = value.toString();

@@ -185,7 +185,7 @@ OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
     dbDiv.className = this.getDbDivClassName();
     
     
-    this.children = new Array();//containsStatements.length);
+    var children = new Array();//the rdfSymbolS of the children, will accessible by childWidgets[i].rdfSymbol
     
     for(var i=0;i<containsStatements.length;i++) {
         var entry = containsStatements[i].object;
@@ -200,11 +200,11 @@ OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
 		/*if (typeof(console) !=  'undefined') {
 			console.debug('holdsStatements',holdsStatements);
 		}*/
-        this.children[pos[0].object] = holdsStatements[0].object; // 
+        children[pos[0].object] = holdsStatements[0].object; // 
     }
-    this.childWidgets = new Array();
-    for(var j=0;j<this.children.length;j++) {  
-    	this.addChild(dbDiv, this.children[j], j);
+    this.childWidgets = new Array(children.length);
+    for(var j=0;j<children.length;j++) {  
+    	this.addChild(dbDiv, children[j], j);
     	
     }
     xhtmlContainer.appendChild(dbDiv);
@@ -253,7 +253,7 @@ OrderedContentWidget.prototype.getControlFunctions = function(li, pos) {
 	   	controlFunctions[controlFunctions.length] = moveUpControl;
 	   	
    	}
-   	if (pos < (this.children.length -1)) {
+   	if (pos < (this.childWidgets.length -1)) {
 	   	var moveDownControl = new Object();
 	   	moveDownControl.label = "DOWN";
 	   	moveDownControl.perform = function() {
@@ -275,6 +275,28 @@ OrderedContentWidget.prototype.getControlFunctions = function(li, pos) {
 	   	}
 	   	controlFunctions[controlFunctions.length] = moveDownControl;
    	}
+   	
+   	
+   	var removeControl = new Object();
+   	removeControl.label = "REMOVE"
+   	removeControl.perform = function() {
+   		var ulElem = li.parentNode;
+   		ulElem.removeChild(li);
+   		containerWidget.controller.modifiedStateChanged(true);
+   		var j = 0;
+   		for (var i = 0; i < allWidgets.length; i++) {
+   			if (i != pos) {
+	   			allWidgets[j] = allWidgets[i];
+	   			j++;
+	   		}
+	   	}
+	   	allWidgets.length = allWidgets.length-1;
+	   	for (var i = 0; i < allWidgets.length; i++) {
+		   	allWidgets[i].fillContextControler(containerWidget.getControlFunctions(ulElem.childNodes[i], i));
+		}
+   	}
+   	controlFunctions[controlFunctions.length] = removeControl;
+   	
    	return controlFunctions;
 }
 
@@ -290,7 +312,7 @@ OrderedContentWidget.prototype.getStore = function() {
 	store.add(this.rdfSymbol, 
 		new RDFSymbol('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
 		new RDFSymbol('http://discobits.org/ontology#OrderedContent'));
-	for (var i = 0; i < this.children.length; i++) {
+	for (var i = 0; i < this.childWidgets.length; i++) {
 		var entry = this.getEntryForChild(store, i);
 		store.add(this.rdfSymbol,  
 		new RDFSymbol('http://discobits.org/ontology#contains'),
