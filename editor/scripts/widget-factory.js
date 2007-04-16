@@ -6,50 +6,9 @@ function WidgetFactory() {
 
 WidgetFactory.typeWidgets = new Array();
 
-WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
-	var result;
-	xhtmlContainer.style.border = "dashed";
-	xhtmlContainer.style.borderWidth = "1px 1px 0px 0px";
-	var controlArea = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
-	controlArea.className = "controlArea";
+WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions, store, widgetHolder) {
 	
-	var viewSourceLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
-	viewSourceLink.appendChild(document.createTextNode("RDF"));
-	viewSourceLink.onclick = function() {
-		alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(result.getStore(), rdfSymbol.uri)));
-		return false;
-	}
-	viewSourceLink.href = "#";
-	controlArea.appendChild(viewSourceLink);
-	controlArea.appendChild(document.createTextNode(" "));
-	var viewURILink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
-	viewURILink.appendChild(document.createTextNode("URI"));
-	viewURILink.onclick = function() {
-		alert(rdfSymbol.uri);
-		return false;
-	}
-	viewURILink.href = "#";
-	controlArea.appendChild(viewURILink);
-	controlArea.appendChild(document.createTextNode(" "));
-	
-	var saveLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
-	saveLink.style.visibility ="hidden";
-	//saveLink.appendChild(document.createTextNode("Save"));
-	var saveIcon = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
-	saveLink.appendChild(saveIcon);
-	saveIcon.src = WidgetFactory.root+"mozile/images/silk/page_save.png";
-	;
-	saveLink.onclick = function() {
-		result.save();
-	}
-	
-	//order: genericControls, widgetControls, contextControls, save
-	var widgetFunctionContainer = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
-	controlArea.appendChild(widgetFunctionContainer);
-	var contextFunctionContainer = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
-	controlArea.appendChild(contextFunctionContainer);
-	xhtmlContainer.appendChild(controlArea);
-	controlArea.appendChild(saveLink);
+	//private functions
 	var fillController = function(functions, container) {
 		while (container.firstChild) {
 			container.removeChild(container.firstChild);
@@ -74,14 +33,73 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 		}
 	}
 	
+	var getGenericControls = function() {
+		var controlFunctions = new Array();
+		var RDFControl = new Object();
+	   	RDFControl.label = "RDF"
+	   	RDFControl.perform = function() {
+	   		alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(widget.getStore(), rdfSymbol.uri)));
+   		}
+   		controlFunctions[controlFunctions.length] = RDFControl;
+   		
+   		var uriControl = new Object();
+	   	uriControl.label = "URI"
+	   	uriControl.perform = function() {
+	   		alert(rdfSymbol.uri);
+   		}
+   		controlFunctions[controlFunctions.length] = uriControl;
+   		
+   		var reloadControl = new Object();
+	   	reloadControl.label = "RELOAD"
+	   	reloadControl.perform = function() {
+			var reloadedStore = new RDFIndexedFormula();
+			WidgetFactory.load(rdfSymbol.uri, reloadedStore);
+			while (xhtmlContainer.firstChild) {
+				xhtmlContainer.removeChild(xhtmlContainer.firstChild);
+			}
+			WidgetFactory.create(rdfSymbol, xhtmlContainer, providedFunctions, reloadedStore, widgetHolder);
+
+   		}
+   		controlFunctions[controlFunctions.length] = reloadControl;
+   		
+	 	return controlFunctions;
+	}
+	
+	var widget;
+	xhtmlContainer.style.border = "dashed";
+	xhtmlContainer.style.borderWidth = "1px 1px 0px 0px";
+	
+	var saveLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+	saveLink.style.visibility ="hidden";
+	//saveLink.appendChild(document.createTextNode("Save"));
+	var saveIcon = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
+	saveLink.appendChild(saveIcon);
+	saveIcon.src = WidgetFactory.root+"mozile/images/silk/page_save.png";
+	;
+	saveLink.onclick = function() {
+		widget.save();
+	}
+	var controlArea = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+	controlArea.className = "controlArea";
+	
+	//order: genericControls, widgetControls, contextControls, save
+	var genericFunctionContainer = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+	controlArea.appendChild(genericFunctionContainer);
+	var widgetFunctionContainer = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+	controlArea.appendChild(widgetFunctionContainer);
+	var contextFunctionContainer = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+	controlArea.appendChild(contextFunctionContainer);
+	xhtmlContainer.appendChild(controlArea);
+	controlArea.appendChild(saveLink);
+	
+	fillController(getGenericControls(), genericFunctionContainer);
+	
 	var fillContextControler = function(contextFunctions) {
 		fillController(contextFunctions, contextFunctionContainer);
 	}
 
 	if (providedFunctions) {
-		
 		fillContextControler(providedFunctions);
-		
 	}
 		
 	var typeWidget = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
@@ -95,40 +113,45 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions) {
 			saveLink.style.visibility ="hidden";
 		}
 	} 
+	if (!store) {
+		var store = WidgetFactory.store;
+		WidgetFactory.ensureDicoBitLoaded(rdfSymbol);
+	}
 	
 	//	alert("hasType "+WidgetFactory.hasType(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB")));
-	WidgetFactory.ensureDicoBitLoaded(rdfSymbol);
+	
 	for (var i = 0; i < WidgetFactory.typeWidgets.length; i++) {
-		if (WidgetFactory.hasType(rdfSymbol, WidgetFactory.typeWidgets[i].type)) {
-			result = new WidgetFactory.typeWidgets[i](rdfSymbol, typeWidget, controller);
+		if (WidgetFactory.hasType(rdfSymbol, WidgetFactory.typeWidgets[i].type, store)) {
+			widget = new WidgetFactory.typeWidgets[i](store, rdfSymbol, typeWidget, controller);
 		}
 	}
 
-	if (result == null) {
+	if (widget == null) {
 		//throw new Error(rdfSymbol+" no good");
-		result = new TypeSelectionWidget(rdfSymbol, typeWidget, xhtmlContainer, providedFunctions);
+		widget = new TypeSelectionWidget(rdfSymbol, typeWidget, xhtmlContainer, providedFunctions);
 	}
-	
-	var fillWidgetControler = function(widgetFunctions) {
-		fillController(widgetFunctions, widgetFunctionContainer);
+
+	if (widget.getWidgetControls) {
+		fillController(widget.getWidgetControls(), widgetFunctionContainer);
 	}
-	if (result.getWidgetControls) {
-		fillWidgetControler(result.getWidgetControls());
-	}
-	result.fillContextControler = fillContextControler;
-	result.xhtmlContainer = xhtmlContainer
-	result.rdfSymbol = rdfSymbol;
-	if (result.getStore) {
-		result.lastSavedContent = result.getStore();
-		result.save = function() {
-			var store = result.getStore();
-			WidgetFactory.putData(result.rdfSymbol, store, result.lastSavedContent);
-			result.lastSavedContent = store;
-			result.controller.modifiedStateChanged(false);
+	widget.fillContextControler = fillContextControler;
+	widget.xhtmlContainer = xhtmlContainer
+	widget.rdfSymbol = rdfSymbol;
+	if (widget.getStore) {
+		widget.lastSavedContent = widget.getStore();
+		widget.save = function() {
+			var widgetStore = widget.getStore();
+			WidgetFactory.putData(widget.rdfSymbol, widgetStore, widget.lastSavedContent);
+			widget.lastSavedContent = widgetStore;
+			widget.controller.modifiedStateChanged(false);
 		}
 	}
-	//alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(result.getStore(), rdfSymbol.uri)));
-	return result;
+	//alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(widget.getStore(), rdfSymbol.uri)));
+	if (!widgetHolder) {
+		var widgetHolder = new Object();
+	}
+	widgetHolder.widget = widget;
+	return widgetHolder;
 }
 
 WidgetFactory.createOnClickFromPerform = function(perform) {
@@ -186,14 +209,22 @@ TypeSelectionWidget = function(rdfSymbol, typeWidget, xhtmlContainer, providedFu
 }
 
 	
-function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer, controller) {
+function XHTMLInfoDBWidget(store, rdfSymbol, xhtmlContainer, controller) {
 	// Configure Mozile Basics
 	mozile.root = WidgetFactory.root+"mozile/";
 	mozile.useSchema("lib/xhtml.rng");
 	this.rdfSymbol = rdfSymbol;
 	this.controller = controller;
-	
-	var infobitProperty = WidgetFactory.store.anyStatementMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), undefined);
+	this.xhtmlContainer = xhtmlContainer;
+	this.loadData(store);
+}
+
+WidgetFactory.typeWidgets.push(XHTMLInfoDBWidget);
+
+XHTMLInfoDBWidget.type = new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB");
+
+XHTMLInfoDBWidget.prototype.loadData = function(store) {
+	var infobitProperty = store.anyStatementMatching(this.rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), undefined);
 	if (infobitProperty) {
 		var objectElement = infobitProperty.object.elementValue;
 	} else {
@@ -202,18 +233,15 @@ function XHTMLInfoDBWidget(rdfSymbol, xhtmlContainer, controller) {
 	}
 	//var editableParagraph = document.createElementNS("http://www.w3.org/1999/xhtml", "p");
 	//xhtmlContainer.appendChild(editableParagraph);
-	WidgetFactory.appendChildrenInDiv(objectElement, xhtmlContainer);
-	this.editableArea = xhtmlContainer.childNodes[0];
+	WidgetFactory.appendChildrenInDiv(objectElement, this.xhtmlContainer);
+	this.editableArea = this.xhtmlContainer.childNodes[0];
 	mozile.editElement(this.editableArea);
+	var controller = this.controller;
 	var modifiedTrue = function() {
 		controller.modifiedStateChanged(true);
 	}
 	this.editableArea.addEventListener("change", modifiedTrue, false);
 }
-
-WidgetFactory.typeWidgets.push(XHTMLInfoDBWidget);
-
-XHTMLInfoDBWidget.type = new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB");
 
 XHTMLInfoDBWidget.prototype.getStore = function() {
 	var store = new RDFIndexedFormula();
@@ -228,22 +256,22 @@ XHTMLInfoDBWidget.prototype.getStore = function() {
 
 
 
-function OrderedContentWidget(rdfSymbol, xhtmlContainer, controller) {
+function OrderedContentWidget(store, rdfSymbol, xhtmlContainer, controller) {
 	this.controller = controller;
 	this.rdfSymbol = rdfSymbol;
-	this.load(rdfSymbol, xhtmlContainer);	
+	this.load(store, rdfSymbol, xhtmlContainer);	
 }
 
 
 
-OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
+OrderedContentWidget.prototype.load = function(store, rdfSymbol, xhtmlContainer) {
 
     // there is a shorthand
 	//var rdfType = new RDFSymbol("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
 
 	//var orderedContentStatement = WidgetFactory.store.statementsMatching(rdfSymbol, rdfType, new RDFSymbol("http://discobits.org/ontology#OrderedContent"));
     
-    var containsStatements = WidgetFactory.store.statementsMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#contains"), undefined);
+    var containsStatements = store.statementsMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#contains"), undefined);
     /*if (typeof(console) !=  'undefined') {
     	console.debug("containsStatements.length",containsStatements.length);
     }*/
@@ -256,13 +284,13 @@ OrderedContentWidget.prototype.load = function(rdfSymbol, xhtmlContainer) {
     
     for(var i=0;i<containsStatements.length;i++) {
         var entry = containsStatements[i].object;
-        var pos = WidgetFactory.store.statementsMatching(entry, new RDFSymbol("http://discobits.org/ontology#pos"), undefined);
+        var pos = store.statementsMatching(entry, new RDFSymbol("http://discobits.org/ontology#pos"), undefined);
         // alert("pos = "+pos);
    //     console.debug('pos',pos);
    		/*if (typeof(console) !=  'undefined') {
         	console.debug('pos[0].object',pos[0].object);
         }*/
-        var holdsStatements = WidgetFactory.store.statementsMatching(entry, new RDFSymbol("http://discobits.org/ontology#holds"), undefined);
+        var holdsStatements = store.statementsMatching(entry, new RDFSymbol("http://discobits.org/ontology#holds"), undefined);
 //        alert("holdsStatements = "+holdsStatements+" length="+holdsStatements.length);
 		/*if (typeof(console) !=  'undefined') {
 			console.debug('holdsStatements',holdsStatements);
@@ -315,7 +343,7 @@ OrderedContentWidget.prototype.getWidgetControls = function() {
 }
 OrderedContentWidget.prototype.getControlFunctions = function(li, pos) {
 	var controlFunctions = new Array();
-	var allWidgets = this.childWidgets;
+	var childWidgets = this.childWidgets;
 	var containerWidget = this;
 	
 	if (pos > 0) {
@@ -330,11 +358,11 @@ OrderedContentWidget.prototype.getControlFunctions = function(li, pos) {
 	   		var ulElem = li.parentNode;
 	   		ulElem.removeChild(li);
 	   		ulElem.insertBefore(li, previousLiElem);
-	   		var previousWidget = allWidgets[pos -1];
-	   		allWidgets[pos -1] = allWidgets[pos];
-	   		allWidgets[pos] = previousWidget;
-	   		for (var i = 0; i < allWidgets.length; i++) {
-	   			allWidgets[i].fillContextControler(containerWidget.getControlFunctions(ulElem.childNodes[i], i));
+	   		var previousWidget = childWidgets[pos -1];
+	   		childWidgets[pos -1] = childWidgets[pos];
+	   		childWidgets[pos] = previousWidget;
+	   		for (var i = 0; i < childWidgets.length; i++) {
+	   			childWidgets[i].widget.fillContextControler(containerWidget.getControlFunctions(ulElem.childNodes[i], i));
 	   		}
 	   		containerWidget.controller.modifiedStateChanged(true);
 	   	}
@@ -353,11 +381,11 @@ OrderedContentWidget.prototype.getControlFunctions = function(li, pos) {
 	   		var ulElem = li.parentNode;
 	   		ulElem.removeChild(nextLiElem);
 	   		ulElem.insertBefore(nextLiElem, li);
-	   		var nextWidget = allWidgets[pos +1];
-	   		allWidgets[pos +1] = allWidgets[pos];
-	   		allWidgets[pos] = nextWidget;
-	   		for (var i = 0; i < allWidgets.length; i++) {
-	   			allWidgets[i].fillContextControler(containerWidget.getControlFunctions(ulElem.childNodes[i], i));
+	   		var nextWidget = childWidgets[pos +1];
+	   		childWidgets[pos +1] = childWidgets[pos];
+	   		childWidgets[pos] = nextWidget;
+	   		for (var i = 0; i < childWidgets.length; i++) {
+	   			childWidgets[i].widget.fillContextControler(containerWidget.getControlFunctions(ulElem.childNodes[i], i));
 	   		}
 	   		containerWidget.controller.modifiedStateChanged(true);
 	   	}
@@ -372,15 +400,15 @@ OrderedContentWidget.prototype.getControlFunctions = function(li, pos) {
    		ulElem.removeChild(li);
    		containerWidget.controller.modifiedStateChanged(true);
    		var j = 0;
-   		for (var i = 0; i < allWidgets.length; i++) {
+   		for (var i = 0; i < childWidgets.length; i++) {
    			if (i != pos) {
-	   			allWidgets[j] = allWidgets[i];
+	   			childWidgets[j] = childWidgets[i];
 	   			j++;
 	   		}
 	   	}
-	   	allWidgets.length = allWidgets.length-1;
-	   	for (var i = 0; i < allWidgets.length; i++) {
-		   	allWidgets[i].fillContextControler(containerWidget.getControlFunctions(ulElem.childNodes[i], i));
+	   	childWidgets.length = childWidgets.length-1;
+	   	for (var i = 0; i < childWidgets.length; i++) {
+		   	childWidgets[i].widget.fillContextControler(containerWidget.getControlFunctions(ulElem.childNodes[i], i));
 		}
    	}
    	controlFunctions[controlFunctions.length] = removeControl;
@@ -419,13 +447,13 @@ OrderedContentWidget.prototype.getEntryForChild = function(store, entryPos) {
 		new RDFLiteral(entryPos));
 	store.add(result,  
 		new RDFSymbol('http://discobits.org/ontology#holds'),
-		this.childWidgets[entryPos].rdfSymbol);
+		this.childWidgets[entryPos].widget.rdfSymbol);
 	return result;
 }
 
 
-function TitledContentWidget(rdfSymbol, xhtmlContainer) {
-	this.load(rdfSymbol, xhtmlContainer);
+function TitledContentWidget(store, rdfSymbol, xhtmlContainer) {
+	this.load(store, rdfSymbol, xhtmlContainer);
 }
 
 TitledContentWidget.type = new RDFSymbol("http://discobits.org/ontology#TitledContent");
@@ -460,10 +488,10 @@ WidgetFactory.addClass = function(elem, className) {
 	elem.className += " "+className;
 	
 }
-WidgetFactory.hasType = function(rdfSymbol, type) {
+WidgetFactory.hasType = function(rdfSymbol, type, store) {
  	//alert("anyStatementMatching for "+rdfSymbol+WidgetFactory.store.anyStatementMatching(rdfSymbol, undefined, undefined));
 	//return (typeof(WidgetFactory.store.anyStatementMatching(rdfSymbol, undefined, type)) != 'undefined')
-	return (typeof(WidgetFactory.store.anyStatementMatching(rdfSymbol, new RDFSymbol('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), type)) != 'undefined')
+	return (typeof(store.anyStatementMatching(rdfSymbol, new RDFSymbol('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), type)) != 'undefined')
 }
 
 WidgetFactory.appendChildrenInDiv = function(objectElement, xhtmlContainer) {
