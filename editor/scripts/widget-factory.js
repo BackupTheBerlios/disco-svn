@@ -1,4 +1,4 @@
-
+xhtmlNS  = "http://www.w3.org/1999/xhtml";
 
 function WidgetFactory() {
 	
@@ -6,7 +6,14 @@ function WidgetFactory() {
 
 WidgetFactory.typeWidgets = new Array();
 
-WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions, store, widgetHolder) {
+
+/**
+ * Creates a new widget
+ * ...
+ * @param {RDFIndexedFormula} lastSavedContent the last saved version of the store, if this is provided the save-link is active in the new widget
+ * @type String
+ */
+WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions, store, widgetHolder, lastSavedContent) {
 	
 	//private functions
 	var fillController = function(functions, container) {
@@ -38,7 +45,29 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions, st
 		var RDFControl = new Object();
 	   	RDFControl.label = "RDF"
 	   	RDFControl.perform = function() {
-	   		alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(widget.getStore(), rdfSymbol.uri)));
+	   		mozile.edit.setStatus(false);
+		   	var div = document.createElementNS(xhtmlNS, "div");
+			var textarea = document.createElementNS(xhtmlNS, "textarea");
+			div.appendChild(textarea);
+			var closeButton = document.createElementNS(xhtmlNS, "button");
+			closeButton.appendChild(document.createTextNode("close"));
+			div.appendChild(closeButton);
+			var body = document.getElementsByTagNameNS(xhtmlNS,"body")[0];
+			div.className = "sourceEdit";
+			textarea.appendChild(document.createTextNode(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(widget.getStore(), ""))));
+	   		body.appendChild(div);
+	   		//alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(widget.getStore(), rdfSymbol.uri)));
+	   		closeButton.onclick = function() {
+	   			var editedStore = new RDFIndexedFormula();
+	   			var nodeTree = (new DOMParser()).parseFromString(textarea.value, 'text/xml');
+	   			var parser = new RDFParser(editedStore);
+	   			parser.parse(nodeTree,rdfSymbol.uri);
+				while (xhtmlContainer.firstChild) {
+					xhtmlContainer.removeChild(xhtmlContainer.firstChild);
+				}
+				WidgetFactory.create(rdfSymbol, xhtmlContainer, providedFunctions, editedStore, widgetHolder, widget.lastSavedContent);
+				body.removeChild(div);
+	   		}
    		}
    		controlFunctions[controlFunctions.length] = RDFControl;
    		
@@ -137,8 +166,16 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions, st
 	widget.fillContextControler = fillContextControler;
 	widget.xhtmlContainer = xhtmlContainer
 	widget.rdfSymbol = rdfSymbol;
+	widget.controller = controller;
+	if (lastSavedContent) {
+		widget.lastSavedContent = lastSavedContent;
+		widget.controller.modifiedStateChanged(true);
+	} else {
+		if (widget.getStore) {
+			widget.lastSavedContent = widget.getStore();
+		}
+	}
 	if (widget.getStore) {
-		widget.lastSavedContent = widget.getStore();
 		widget.save = function() {
 			var widgetStore = widget.getStore();
 			WidgetFactory.putData(widget.rdfSymbol, widgetStore, widget.lastSavedContent);
@@ -265,45 +302,24 @@ function OrderedContentWidget(store, rdfSymbol, xhtmlContainer, controller) {
 
 
 OrderedContentWidget.prototype.load = function(store, rdfSymbol, xhtmlContainer) {
-
-    // there is a shorthand
-	//var rdfType = new RDFSymbol("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-
-	//var orderedContentStatement = WidgetFactory.store.statementsMatching(rdfSymbol, rdfType, new RDFSymbol("http://discobits.org/ontology#OrderedContent"));
-    
+   
     var containsStatements = store.statementsMatching(rdfSymbol, new RDFSymbol("http://discobits.org/ontology#contains"), undefined);
-    /*if (typeof(console) !=  'undefined') {
-    	console.debug("containsStatements.length",containsStatements.length);
-    }*/
-    
     this.dbDiv = document.createElementNS("http://www.w3.org/1999/xhtml", "ol");
     this.dbDiv.className = this.getDbDivClassName();
-    
     
     var children = new Array();//the rdfSymbolS of the children, will accessible by childWidgets[i].rdfSymbol
     
     for(var i=0;i<containsStatements.length;i++) {
         var entry = containsStatements[i].object;
         var pos = store.statementsMatching(entry, new RDFSymbol("http://discobits.org/ontology#pos"), undefined);
-        // alert("pos = "+pos);
-   //     console.debug('pos',pos);
-   		/*if (typeof(console) !=  'undefined') {
-        	console.debug('pos[0].object',pos[0].object);
-        }*/
         var holdsStatements = store.statementsMatching(entry, new RDFSymbol("http://discobits.org/ontology#holds"), undefined);
-//        alert("holdsStatements = "+holdsStatements+" length="+holdsStatements.length);
-		/*if (typeof(console) !=  'undefined') {
-			console.debug('holdsStatements',holdsStatements);
-		}*/
         children[pos[0].object] = holdsStatements[0].object; // 
     }
     this.childWidgets = new Array(children.length);
     for(var j=0;j<children.length;j++) {  
-    	this.addChild(children[j], j);
-    	
+    	this.addChild(children[j], j);    	
     }
     xhtmlContainer.appendChild(this.dbDiv);
-    	
 }
 
 OrderedContentWidget.type = new RDFSymbol("http://discobits.org/ontology#OrderedContent");
@@ -311,9 +327,6 @@ OrderedContentWidget.type = new RDFSymbol("http://discobits.org/ontology#Ordered
 WidgetFactory.typeWidgets.push(OrderedContentWidget);
 
 OrderedContentWidget.prototype.addChild = function(child, pos) {
-	/*if (typeof(console) !=  'undefined') {
-   		console.debug("recursing on "+child; 	
-   	}*/
    	var li = document.createElementNS("http://www.w3.org/1999/xhtml", "li");
    	var div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
    	this.positionHandling(pos, div);
@@ -452,7 +465,7 @@ OrderedContentWidget.prototype.getEntryForChild = function(store, entryPos) {
 }
 
 
-function TitledContentWidget(store, rdfSymbol, xhtmlContainer) {
+function TitledContentWidget(store, rdfSymbol, xhtmlContainer, controller) {
 	this.load(store, rdfSymbol, xhtmlContainer);
 }
 
@@ -460,9 +473,9 @@ TitledContentWidget.type = new RDFSymbol("http://discobits.org/ontology#TitledCo
 
 WidgetFactory.typeWidgets.push(TitledContentWidget);
 
-
 TitledContentWidget.prototype.load = OrderedContentWidget.prototype.load;
 TitledContentWidget.prototype.addChild = OrderedContentWidget.prototype.addChild;
+TitledContentWidget.prototype.getEntryForChild = OrderedContentWidget.prototype.getEntryForChild;
 TitledContentWidget.prototype.getControlFunctions = function(li, pos) {
 	controlFunctions = new Array();
 	return controlFunctions;
@@ -480,6 +493,20 @@ TitledContentWidget.prototype.positionHandling = function(pos, div) {
 	if (pos == 1) {
 		WidgetFactory.addClass(div, "content");
 	}
+}
+
+TitledContentWidget.prototype.getStore = function() {
+	var store = new RDFIndexedFormula();
+	store.add(this.rdfSymbol, 
+		new RDFSymbol('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+		new RDFSymbol('http://discobits.org/ontology#TitledContent'));
+	for (var i = 0; i < this.childWidgets.length; i++) {
+		var entry = this.getEntryForChild(store, i);
+		store.add(this.rdfSymbol,  
+		new RDFSymbol('http://discobits.org/ontology#contains'),
+		entry);
+	}
+	return store;
 }
 
 // helpers ////////////
