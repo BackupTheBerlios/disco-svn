@@ -84,6 +84,15 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions, st
    		}
    		controlFunctions[controlFunctions.length] = RDFControl;
    		
+   		/* control to view RDF to be revoked
+   		var revRDFControl = new Object();
+	   	revRDFControl.label = "REVRDF"
+	   	revRDFControl.perform = function() {
+	   	
+	   		alert(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(widget.lastSavedContent, "")));
+   		}
+   		controlFunctions[controlFunctions.length] = revRDFControl;
+   		*/
    		var uriControl = new Object();
 	   	uriControl.label = "URI"
 	   	uriControl.perform = function() {
@@ -238,7 +247,7 @@ TypeSelectionWidget = function(rdfSymbol, typeWidget, xhtmlContainer, providedFu
 		while (xhtmlContainer.firstChild) {
 			xhtmlContainer.removeChild(xhtmlContainer.firstChild);
 		}
-		WidgetFactory.create(rdfSymbol, xhtmlContainer, providedFunctions);
+		WidgetFactory.create(rdfSymbol, xhtmlContainer, providedFunctions, undefined, undefined, new RDFIndexedFormula());
 		//alert(select.value);
 	};
 }
@@ -340,13 +349,13 @@ OrderedContentWidget.type = new RDFSymbol("http://discobits.org/ontology#Ordered
 
 WidgetFactory.typeWidgets.push(OrderedContentWidget);
 
-OrderedContentWidget.prototype.addChild = function(child, pos) {
+OrderedContentWidget.prototype.addChild = function(child, pos, lastSavedStore) {
    	var li = document.createElementNS("http://www.w3.org/1999/xhtml", "li");
    	var div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
    	this.positionHandling(pos, div);
    	var controlFunctions = this.getControlFunctions(li, pos);
    	
-   	this.childWidgets[pos] = WidgetFactory.create(child, div, controlFunctions);
+   	this.childWidgets[pos] = WidgetFactory.create(child, div, controlFunctions, undefined, undefined, lastSavedStore);
    	li.appendChild(div);
    	this.childElemContainer.appendChild(li);
 }
@@ -493,7 +502,7 @@ function TitledContentWidget(store, rdfSymbol, xhtmlContainer, controller) {
    		var titleURI = baseURI + "title";
    		var titleRDFSymbol = new RDFSymbol(titleURI);
    		WidgetFactory.store.add(titleRDFSymbol,  RDF("type"), XHTMLInfoDBWidget.type);
-		this.addChild(titleRDFSymbol, 0); 
+		this.addChild(titleRDFSymbol, 0, new RDFIndexedFormula()); 
    		this.childWidgets[0].widget.controller.modifiedStateChanged(true);
    		
    		var contentURI = baseURI + "content";
