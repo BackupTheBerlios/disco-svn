@@ -258,16 +258,19 @@ TypeSelectionWidget = function(rdfSymbol, typeWidget, xhtmlContainer, providedFu
 //mozile.debug.logLevel = "debug";
 
 {
-	var found = false;
-	for(var i=0; i < mozile.edit.commands._commands.length; i++) {
-		if(mozile.edit.commands._commands[i] == mozile.edit.save);
-		//delete(mozile.edit.commands._commands[i]);
-		found = true;
-		if (found) {
-			mozile.edit.commands._commands[i] = mozile.edit.commands._commands[i+1];
+	
+	if (mozile.edit) {
+		var found = false;
+		for(var i=0; i < mozile.edit.commands._commands.length; i++) {
+			if(mozile.edit.commands._commands[i] == mozile.edit.save);
+			//delete(mozile.edit.commands._commands[i]);
+			found = true;
+			if (found) {
+				mozile.edit.commands._commands[i] = mozile.edit.commands._commands[i+1];
+			}
 		}
+		mozile.edit.commands._commands.pop();
 	}
-	mozile.edit.commands._commands.pop();
 }
 
 	
@@ -345,7 +348,14 @@ XHTMLInfoDBWidget.prototype.loadData = function(store) {
 	//xhtmlContainer.appendChild(editableParagraph);
 	WidgetFactory.appendChildrenInDiv(objectElement, this.xhtmlContainer);
 	this.editableArea = this.xhtmlContainer.childNodes[0];
-	mozile.editElement(this.editableArea);
+	try {
+		mozile.editElement(this.editableArea);
+	} catch (error) {
+		if (!XHTMLInfoDBWidget.allreadyWarnedNoMozile) {
+			alert ("mozile isn't working on your browser");
+			XHTMLInfoDBWidget.allreadyWarnedNoMozile = true;
+		}
+	}
 	var controller = this.controller;
 	var modifiedTrue = function() {
 		controller.modifiedStateChanged(true);
