@@ -53,7 +53,7 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions, st
 		var RDFControl = new Object();
 	   	RDFControl.label = "RDF"
 	   	RDFControl.perform = function() {
-	   		mozile.edit.setStatus(false);
+	   		mozile.edit.disable();
 		   	var div = document.createElementNS(xhtmlNS, "div");
 			var textarea = document.createElementNS(xhtmlNS, "textarea");
 			div.appendChild(textarea);
@@ -77,9 +77,11 @@ WidgetFactory.create = function(rdfSymbol, xhtmlContainer, providedFunctions, st
 				}
 				WidgetFactory.create(rdfSymbol, xhtmlContainer, providedFunctions, editedStore, widgetHolder, widget.lastSavedContent);
 				body.removeChild(div);
+				mozile.edit.enable();
 	   		}
 	   		discardButton.onclick = function() {
 				body.removeChild(div);
+				mozile.edit.enable();
 	   		}
    		}
    		controlFunctions[controlFunctions.length] = RDFControl;
@@ -282,6 +284,54 @@ function XHTMLInfoDBWidget(store, rdfSymbol, xhtmlContainer, controller) {
 WidgetFactory.typeWidgets.push(XHTMLInfoDBWidget);
 
 XHTMLInfoDBWidget.type = new RDFSymbol("http://discobits.org/ontology#XHTMLInfoDB");
+
+
+XHTMLInfoDBWidget.prototype.getWidgetControls = function() {
+	var controlFunctions = new Array();
+	var RDFControl = new Object();
+   	RDFControl.label = "XHTML"
+   	var widget = this;
+   	RDFControl.perform = function() {
+   		mozile.edit.disable();
+	   	var div = document.createElementNS(xhtmlNS, "div");
+		var textarea = document.createElementNS(xhtmlNS, "textarea");
+		div.appendChild(textarea);
+		var useButton = document.createElementNS(xhtmlNS, "button");
+		useButton.appendChild(document.createTextNode("use"));
+		div.appendChild(useButton);
+		var discardButton = document.createElementNS(xhtmlNS, "button");
+		discardButton.appendChild(document.createTextNode("discard"));
+		div.appendChild(discardButton);
+		var body = document.getElementsByTagNameNS(xhtmlNS,"body")[0];
+		div.className = "sourceEdit";
+		var serialized = "";
+		for (var i = 0; i < widget.editableArea.childNodes.length; i++) {
+			serialized += new XMLSerializer().serializeToString(widget.editableArea.childNodes[i]);
+		}
+		textarea.appendChild(document.createTextNode(serialized));
+   		body.appendChild(div);
+   		useButton.onclick = function() {
+   			var editedStore = new RDFIndexedFormula();
+   			var nodeTree = (new DOMParser()).parseFromString("<elem xmlns=\"http://www.w3.org/1999/xhtml\">"+textarea.value+"</elem>", 'text/xml');
+   			//alert(new XMLSerializer().serializeToString(nodeTree));
+   			while (widget.editableArea.firstChild) {
+	   			widget.editableArea.removeChild(widget.editableArea.firstChild);
+   			}
+   			for (var i = 0; i < nodeTree.documentElement.childNodes.length; i++) {
+				widget.editableArea.appendChild(nodeTree.documentElement.childNodes[i].cloneNode(true));
+			}
+			widget.controller.modifiedStateChanged(true);
+   			body.removeChild(div);
+			mozile.edit.enable();
+   		}
+   		discardButton.onclick = function() {
+			body.removeChild(div);
+			mozile.edit.enable();
+   		}
+  		}
+  		controlFunctions[controlFunctions.length] = RDFControl;
+  		return controlFunctions;
+}   		
 
 XHTMLInfoDBWidget.prototype.loadData = function(store) {
 	var infobitProperty = store.anyStatementMatching(this.rdfSymbol, new RDFSymbol("http://discobits.org/ontology#infoBit"), undefined);
