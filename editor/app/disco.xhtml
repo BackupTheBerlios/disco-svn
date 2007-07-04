@@ -36,15 +36,14 @@
 				}
 				var discobitURIElem = document.getElementById('discobitURI');
 				discobitURIElem.value = uri;
-				discobitURIElem.disabled = false;
-				var select = parameters.getField("select");
-				
-				var parameters = new Parameters();
-				var source = parameters.getField("source");
-				
+				discobitURIElem.disabled = false;	
 				var changeLink = document.getElementById('changeLink');
 				changeLink.style.display = "none";
 
+				var loadParam = parameters.getField("load");
+				if (loadParam == "auto") {
+					setURI();
+				}
 
 			}
 			
