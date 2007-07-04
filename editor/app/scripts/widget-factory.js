@@ -614,7 +614,7 @@ OrderedContentWidget.prototype.getControlFunctions = function(li, pos) {
 	   			childWidgets[j] = childWidgets[i];
 	   			j++;
 	   		} else {
-	   			alert("DEBUG: removing "+childWidgets[i].widget.rdfSymbol);
+	   			//alert("DEBUG: removing "+childWidgets[i].widget.rdfSymbol);
 	   			childWidgets[i].widget.remove();
 	   		}
 	   	}
