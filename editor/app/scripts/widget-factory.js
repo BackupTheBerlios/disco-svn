@@ -772,13 +772,53 @@ WidgetFactory.appendChildrenInDiv = function(objectElement, xhtmlContainer) {
 		}
 		xhtmlContainer.appendChild(div);	
 	}
-WidgetFactory.putData = function(rdfSymbol, store, previousStore) {
+WidgetFactory.putData = function(rdfSymbol, store, previousStore, noContainerCreation) {
 	var url = rdfSymbol.uri;
 	var xhr = Util.XMLHTTPFactory();
+	
 	xhr.open("PUT", url, false);
 	xhr.setRequestHeader("Content-Type", "appication/rdf+xml");
 	xhr.send(new XMLSerializer().serializeToString(RDFXMLSerializer.serialize(store, rdfSymbol.uri)));
-	xhr = Util.XMLHTTPFactory();
+	/*RFC 2518 says: "A PUT that would result in the creation of a resource without an
+   appropriately scoped parent collection MUST fail with a 409."
+   
+   Apache however sends a 403*/
+	if ((xhr.status == 409) || (xhr.status == 403)) {
+  		//alert("collection does not exist"+xhr.responseText);
+  		if (!noContainerCreation) {
+  			WidgetFactory.createContainingCollection(url);
+  			WidgetFactory.putData(rdfSymbol, store, previousStore, true);
+  		} else {
+  			throw new Error(xhr.responseText);
+  		}
+  	} else {
+	  	if (xhr.status >= 300) {
+	  		alert("server returned failure: "+xhr.responseText);
+	  	}
+	 }
+}
+
+WidgetFactory.createContainingCollection = function(url, noContainerCreation) {
+	if (url == "/") {
+		return;
+	} 
+	var containerURL = url.substring(0, url.lastIndexOf('/',url.length -2)+1);
+	var xhr = Util.XMLHTTPFactory();
+	xhr.open("MKCOL", containerURL, false);
+	xhr.send();
+	if ((xhr.status == 409) || (xhr.status == 403)) {
+  		//alert("collection does not exist"+xhr.responseText);
+  		if (!noContainerCreation) {
+  			WidgetFactory.createContainingCollection(containerURL);
+  			WidgetFactory.createContainingCollection(url, true);
+  		} else {
+  			throw new Error(xhr.responseText);
+  		}
+  	} else {
+	  	if (xhr.status >= 300) {
+	  		alert("server returned failure: "+xhr.responseText);
+	  	}
+  	}
 }
 
 WidgetFactory.ensureDicoBitLoaded = function(rdfSymbol, terminationListener) {
