@@ -541,7 +541,7 @@ OrderedContentWidget.prototype.getWidgetControls = function() {
    	moveUpControl.perform = function() {
    		var baseURI = orderedContentWidget.rdfSymbol.uri;
    		if (!baseURI.match(/\/$/)) {
-   			baseURI += "/";
+   			baseURI += "-el/";
    		}
    		var childRDFSymbol = new RDFSymbol(baseURI+orderedContentWidget.childWidgets.length);
    		orderedContentWidget.addChild(childRDFSymbol, orderedContentWidget.childWidgets.length); 
