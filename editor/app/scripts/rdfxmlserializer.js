@@ -84,10 +84,26 @@ RDFXMLSerializer.getRelativePath = function(url, contextURL) {
 	if (!contextURL) {
 		return url;
 	}
-	var splittedURL = RDFXMLSerializer.splitURI(url);
-	var splittedContextURL = RDFXMLSerializer.splitURI(contextURL);	
-	if (splittedURL.ns != splittedContextURL.ns) {
+	var contextCollection = contextURL.substring(0, contextURL.lastIndexOf('/'));
+	var contextualisation =  RDFXMLSerializer.getRelativePathToCollection(url, contextCollection);
+	if (contextualisation) {
+		return contextualisation;
+	} else {
 		return url;
 	}
-	return splittedURL.name;
+}
+
+RDFXMLSerializer.getRelativePathToCollection = function(url, contextCollection) {
+	if (url.indexOf(contextCollection) == 0) {
+		return url.substring(contextCollection.length+1);
+	} else {
+		if (contextCollection.match(/.*\/\/.*\.*\//)) {
+			var contextCollection = contextCollection.substring(0, contextCollection.lastIndexOf('/'));
+			var superContextualisation = RDFXMLSerializer.getRelativePathToCollection(url, contextCollection);
+			if (superContextualisation) {
+				return "../"+superContextualisation;
+			}
+		} 
+		return null;
+	}
 }
