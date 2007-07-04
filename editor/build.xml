@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     04.07.2007 17:46:00                                                        
+
+     disco    
+     discobits editor
+                   
+     reto                                                                
+     ====================================================================== -->
+<project name="project" default="default">
+	
+	
+    <description>
+            discobits editor
+    </description>
+
+    <!-- ================================= 
+          target: default              
+         ================================= -->
+    <target name="default" depends="zip" description="--> description">
+        
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: depends                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="zip">
+    	<zip destfile="disco.zip" comment="dicosbits editor">
+    		<zipfileset dir="." prefix="disco">
+    			<exclude name="disco*.zip"/>
+    			<exclude name="build.xml"/>
+    		</zipfileset>
+    	</zip>
+    </target>
+
+</project>
+
