@@ -1,0 +1,6 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<rdf:Description rdf:about="1-content">
+		<infoBit xmlns="http://discobits.org/ontology#" rdf:parseType="Literal">The content of the <em xmlns="http://www.w3.org/1999/xhtml">nested</em> titled content.</infoBit>
+		<rdf:type rdf:resource="http://discobits.org/ontology#XHTMLInfoDiscoBit"/>
+	</rdf:Description>
+</rdf:RDF>

@@ -1,0 +1,17 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<rdf:Description rdf:about="discobit-content">
+		<rdf:type rdf:resource="http://discobits.org/ontology#OrderedContent"/>
+		<contains xmlns="http://discobits.org/ontology#" rdf:nodeID="a26"/>
+		<contains xmlns="http://discobits.org/ontology#" rdf:nodeID="a27"/>
+	</rdf:Description>
+	<rdf:Description rdf:nodeID="a26">
+		<rdf:type rdf:resource="http://discobits.org/ontology#Entry"/>
+		<pos xmlns="http://discobits.org/ontology#">0</pos>
+		<holds xmlns="http://discobits.org/ontology#" rdf:resource="discobit-content-el/0"/>
+	</rdf:Description>
+	<rdf:Description rdf:nodeID="a27">
+		<rdf:type rdf:resource="http://discobits.org/ontology#Entry"/>
+		<pos xmlns="http://discobits.org/ontology#">1</pos>
+		<holds xmlns="http://discobits.org/ontology#" rdf:resource="discobit-content-el/1"/>
+	</rdf:Description>
+</rdf:RDF>

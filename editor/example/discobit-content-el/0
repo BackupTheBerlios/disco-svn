@@ -1,0 +1,6 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<rdf:Description rdf:about="0">
+		<infoBit xmlns="http://discobits.org/ontology#" rdf:parseType="Literal">The <span xmlns="http://www.w3.org/1999/xhtml" style="text-decoration: underline;">first</span> element in an ordered content</infoBit>
+		<rdf:type rdf:resource="http://discobits.org/ontology#XHTMLInfoDiscoBit"/>
+	</rdf:Description>
+</rdf:RDF>
