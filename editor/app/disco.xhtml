@@ -41,8 +41,31 @@
 				
 				var parameters = new Parameters();
 				var source = parameters.getField("source");
+				
+				var changeLink = document.getElementById('changeLink');
+				changeLink.style.display = "none";
 
 
+			}
+			
+			var unload = function() {
+				var beforeunload = window.onbeforeunload();
+				if (beforeunload) {
+					if (!confirm(beforeunload)) {
+						return;
+					}
+				}
+				WidgetFactory.openWidgets = new Array();
+				var place = document.getElementById('place');
+				while (place.firstChild) {
+					place.removeChild(place.firstChild);
+				}
+				var discobitURIElem = document.getElementById('discobitURI');
+				var loadButton = document.getElementById('loadButton');
+				var changeLink = document.getElementById('changeLink');
+				loadButton.disabled = false;
+				discobitURIElem.disabled = false;
+				changeLink.style.display = "none";
 			}
 				
 			var setURI = function() {
@@ -64,6 +87,8 @@
 				loadButton.disabled = true;
 
 				discobitURIElem.disabled = true;
+				var changeLink = document.getElementById('changeLink');
+				changeLink.style.display = "";
 			}
 	
 	
@@ -75,7 +100,9 @@
 		Discobits Editor</h1>
 		<p>Edit discobits resources.</p>
 		<div>
-			Resource: <input type="text" id="discobitURI" size="80"/> <button id="loadButton" onclick="setURI()">Load</button>
+			Resource: <input type="text" id="discobitURI" size="80"/> 
+			<button id="loadButton" onclick="setURI()">Load</button>
+			<a href="#" onclick="unload()" id="changeLink" >change</a>
 		</div>
 		<div id="place" />
 
